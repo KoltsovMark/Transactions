@@ -64,7 +64,7 @@ class Currency
     {
         $currency = $this->getCurrencyByCodeOrNull($currencyCode);
 
-        if (empty($currency)) {
+        if (is_null($currency)) {
             $this->currencies[] = new CurrencyModel($currencyCode);
         }
 
