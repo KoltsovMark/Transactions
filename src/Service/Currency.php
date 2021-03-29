@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CommissionTask\Service;
 
 use CommissionTask\Model\Currency as CurrencyModel;
+use CommissionTask\Repository\Currency as CurrencyRepository;
 
 class Currency
 {
@@ -11,12 +14,14 @@ class Currency
     public const JPY = 'JPY';
 
     /**
-     * @var CurrencyModel[]
+     * @var CurrencyRepository
      */
-    protected array $currencies = [];
+    protected $currencyRepository;
 
-    public function __construct()
+    public function __construct(CurrencyRepository $currencyRepository)
     {
+        $this->currencyRepository = $currencyRepository;
+
         $this->loadCurrencies();
     }
 
@@ -35,48 +40,9 @@ class Currency
     protected function loadCurrencies(): void
     {
         foreach (self::getSupportedCurrenciesCodes() as $currencyCode) {
-            $this->addCurrency($currencyCode);
+            $currency = new CurrencyModel($currencyCode);
+            $this->currencyRepository->add($currency);
         }
-    }
-
-    /**
-     * @param string $currencyCode
-     *
-     * @return CurrencyModel|null
-     */
-    public function getCurrencyByCodeOrNull(string $currencyCode): ?CurrencyModel
-    {
-        foreach ($this->getCurrencies() as $currency) {
-            if ($currency->getCode() === $currencyCode) {
-                return $currency;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $currencyCode
-     *
-     * @return $this
-     */
-    public function addCurrency(string $currencyCode): Currency
-    {
-        $currency = $this->getCurrencyByCodeOrNull($currencyCode);
-
-        if (is_null($currency)) {
-            $this->currencies[] = new CurrencyModel($currencyCode);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return CurrencyModel[]
-     */
-    public function getCurrencies(): array
-    {
-        return $this->currencies;
     }
 
     /**
@@ -86,6 +52,6 @@ class Currency
      */
     public function isSupportedCurrency(string $currencyCode): bool
     {
-        return (bool) $this->getCurrencyByCodeOrNull($currencyCode);
+        return (bool) $this->currencyRepository->getCurrencyByCodeOrNull($currencyCode);
     }
 }

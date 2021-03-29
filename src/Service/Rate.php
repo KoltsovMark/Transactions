@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CommissionTask\Service;
 
 use CommissionTask\Model\Rate as RateModel;
+use CommissionTask\Repository\Rate as RateRepository;
 
 class Rate
 {
@@ -14,12 +17,15 @@ class Rate
     ];
 
     /**
-     * @var RateModel[]
+     * @var RateRepository
      */
-    protected array $rates = [];
+    protected $rateRepository;
 
-    public function __construct()
+    public function __construct(RateRepository $rateRepository)
     {
+        $this->rateRepository = $rateRepository;
+
+        $this->loadRates();
         $this->loadRates();
     }
 
@@ -35,52 +41,10 @@ class Rate
     {
         foreach (Rate::getDefaultRatesArray() as $baseCurrency => $quoteCurrencies) {
             foreach ($quoteCurrencies as $quoteCurrency => $rate) {
-                $this->addRate($baseCurrency, $quoteCurrency, $rate);
+                $rateModel = new RateModel($baseCurrency, $quoteCurrency, $rate);
+                $this->rateRepository->addRate($rateModel);
             }
         }
-    }
-
-    /**
-     * @return RateModel[]
-     */
-    public function getRates(): array
-    {
-        return $this->rates;
-    }
-
-    /**
-     * @param string $baseCurrency
-     * @param string $quoteCurrency
-     *
-     * @return RateModel|null
-     */
-    public function getRateByCodesOrNull(string $baseCurrency, string $quoteCurrency): ?RateModel
-    {
-        foreach ($this->getRates() as $rate) {
-            if ($rate->getBaseCurrency() === $baseCurrency && $rate->getQuoteCurrency() === $quoteCurrency) {
-                return $rate;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $baseCurrency
-     * @param string $quoteCurrency
-     * @param string $rate
-     *
-     * @return $this
-     */
-    public function addRate(string $baseCurrency, string $quoteCurrency, string $rate): Rate
-    {
-        $rateModel = $this->getRateByCodesOrNull($baseCurrency, $quoteCurrency);
-
-        if (is_null($rateModel)) {
-            $this->rates[] = new RateModel($baseCurrency, $quoteCurrency, $rate);
-        }
-
-        return $this;
     }
 
     /**
@@ -91,6 +55,6 @@ class Rate
      */
     public function isRateSupported(string $baseCurrency, string $quoteCurrency): bool
     {
-        return (bool) $this->getRateByCodesOrNull($baseCurrency, $quoteCurrency);
+        return (bool) $this->rateRepository->getRateByCodesOrNull($baseCurrency, $quoteCurrency);
     }
 }
