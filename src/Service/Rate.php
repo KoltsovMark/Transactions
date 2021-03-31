@@ -16,10 +16,7 @@ class Rate
       ]
     ];
 
-    /**
-     * @var RateRepository
-     */
-    protected $rateRepository;
+    protected RateRepository $rateRepository;
 
     public function __construct(RateRepository $rateRepository)
     {

@@ -13,10 +13,7 @@ class Currency
     public const USD = 'USD';
     public const JPY = 'JPY';
 
-    /**
-     * @var CurrencyRepository
-     */
-    protected $currencyRepository;
+    protected CurrencyRepository $currencyRepository;
 
     public function __construct(CurrencyRepository $currencyRepository)
     {

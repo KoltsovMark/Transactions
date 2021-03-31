@@ -9,10 +9,7 @@ use CommissionTask\Service\Math;
 
 class MathTest extends TestCase
 {
-    /**
-     * @var Math
-     */
-    private $math;
+    private Math $math;
 
     public function setUp()
     {
