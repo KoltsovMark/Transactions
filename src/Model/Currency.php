@@ -6,17 +6,16 @@ namespace CommissionTask\Model;
 
 class Currency
 {
-    protected string $code;
+    public const EUR = 'EUR';
+    public const USD = 'USD';
+    public const JPY = 'JPY';
 
-    public function __construct(string $code)
-    {
-        $this->setCode($code);
-    }
+    protected ?string $code = null;
 
     /**
-     * @return mixed
+     * @return string|null
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -26,7 +25,7 @@ class Currency
      *
      * @return Currency
      */
-    public function setCode(string $code)
+    public function setCode(string $code): self
     {
         $this->code = $code;
         return $this;
