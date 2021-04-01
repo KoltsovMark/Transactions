@@ -17,24 +17,6 @@ class Transaction
     protected DateTime $createdAt;
     protected Rate $rate;
 
-    public function __construct(
-        string $amount,
-        string $commission,
-        Currency $currency,
-        Customer $customer,
-        string $type,
-        DateTime $createdAt,
-        Rate $rate
-    ) {
-        $this->amount = $amount;
-        $this->commission = $commission;
-        $this->currency = $currency;
-        $this->customer = $customer;
-        $this->type = $type;
-        $this->createdAt = $createdAt;
-        $this->rate = $rate;
-    }
-
     /**
      * @return string
      */
@@ -166,5 +148,15 @@ class Transaction
     {
         $this->rate = $rate;
         return $this;
+    }
+
+    public function isCashIn(): bool
+    {
+        return $this->getType() === self::TYPE_CASH_IN;
+    }
+
+    public function isCashOut(): bool
+    {
+        return $this->getType() === self::TYPE_CASH_OUT;
     }
 }
