@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace CommissionTask\Service;
 
+use Brick\Math\BigRational;
 use Brick\Math\RoundingMode;
-use Brick\Money\Context\CustomContext;
-use Brick\Money\Money;
 
 class Math
 {
     public const ROUNDING_MODE = RoundingMode::UP;
-    protected const DEFAULT_CURRENCY = 'EUR';
 
+    private $scale;
     private $roundingMode;
-    private $context;
 
     public function __construct(int $scale = 2, int $roundingMode = self::ROUNDING_MODE)
     {
-        $this->context = new CustomContext($scale);
+        $this->scale = $scale;
         $this->roundingMode = $roundingMode;
     }
 
@@ -27,15 +25,13 @@ class Math
      * @param string $rightOperand
      *
      * @return string
-     * @throws \Brick\Money\Exception\MoneyMismatchException
-     * @throws \Brick\Money\Exception\UnknownCurrencyException
      */
     public function add(string $leftOperand, string $rightOperand): string
     {
-        $leftOperand = Money::of($leftOperand, self::DEFAULT_CURRENCY, $this->context, $this->roundingMode);
-        $rightOperand = Money::of($rightOperand, self::DEFAULT_CURRENCY, $this->context, $this->roundingMode);
-
-        return (string) $leftOperand->plus($rightOperand, self::ROUNDING_MODE)->getAmount();
+        return (string) BigRational::of($leftOperand)
+            ->plus($rightOperand)
+            ->toScale($this->scale, $this->roundingMode)
+            ;
     }
 
     /**
@@ -43,13 +39,12 @@ class Math
      * @param string $rightOperand
      *
      * @return string
-     * @throws \Brick\Money\Exception\UnknownCurrencyException
      */
-    public function divide(string $leftOperand, string $rightOperand)
+    public function divide(string $leftOperand, string $rightOperand): string
     {
-        $leftOperand = Money::of($leftOperand, self::DEFAULT_CURRENCY, $this->context, $this->roundingMode);
-        $rightOperand = Money::of($rightOperand, self::DEFAULT_CURRENCY, $this->context, $this->roundingMode);
-
-        return (string) $leftOperand->dividedBy($rightOperand, $this->roundingMode)->getAmount();
+        return (string) BigRational::of($leftOperand)
+            ->dividedBy($rightOperand)
+            ->toScale($this->scale, $this->roundingMode)
+            ;
     }
 }

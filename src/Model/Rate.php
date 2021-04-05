@@ -10,16 +10,6 @@ class Rate
     protected string $quoteCurrency;
     protected string $rate;
 
-    public function __construct(
-        string $baseCurrency,
-        string $quoteCurrency,
-        string $rate
-    ) {
-        $this->setBaseCurrency($baseCurrency)
-            ->setQuoteCurrency($quoteCurrency)
-            ->setRate($rate);
-    }
-
     /**
      * @return string
      */
