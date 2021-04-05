@@ -17,6 +17,7 @@
         "php": ">=7.0",
         "ext-bcmath": "*",
         "brick/money": "^0.5.1",
+        "nesbot/carbon": "^2.46"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5",
