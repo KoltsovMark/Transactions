@@ -53,7 +53,7 @@ class Customer
      */
     public function isLegalPerson(): bool
     {
-        return $this->getType() === self::NATURAL_TYPE;
+        return $this->getType() === self::LEGAL_TYPE;
     }
 
     /**
@@ -61,6 +61,6 @@ class Customer
      */
     public function isNaturalPerson(): bool
     {
-        return $this->getType() === self::LEGAL_TYPE;
+        return $this->getType() === self::NATURAL_TYPE;
     }
 }
