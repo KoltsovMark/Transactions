@@ -8,7 +8,7 @@ class TransactionCommission
 {
     protected string $amount;
     protected string $currencyCode;
-    protected string $customerId;
+    protected int $customerId;
     protected string $customerType;
     protected string $transactionType;
     protected string $createdAt;
@@ -52,28 +52,28 @@ class TransactionCommission
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getCustomerId(): string
+    public function getCustomerId(): int
     {
         return $this->customerId;
     }
 
     /**
-     * @param string $customerId
+     * @param int $customerId
      *
      * @return TransactionCommission
      */
-    public function setCustomerId(string $customerId): TransactionCommission
+    public function setCustomerId(int $customerId): TransactionCommission
     {
         $this->customerId = $customerId;
         return $this;
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getCustomerType(): string
+    public function getCustomerType(): int
     {
         return $this->customerType;
     }
@@ -94,7 +94,7 @@ class TransactionCommission
      */
     public function getTransactionType(): string
     {
-        return $this->TransactionType;
+        return $this->transactionType;
     }
 
     /**

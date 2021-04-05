@@ -25,7 +25,7 @@ class TransactionCommission
         $dto = $this->createEmpty();
 
         $dto->setCreatedAt($newTransactionDto->getCreatedAt())
-            ->setCustomerId($newTransactionDto->getCustomerId())
+            ->setCustomerId((int) $newTransactionDto->getCustomerId())
             ->setCustomerType($newTransactionDto->getCustomerType())
             ->setTransactionType($newTransactionDto->getTransactionType())
             ->setAmount($newTransactionDto->getAmount())
