@@ -2,8 +2,6 @@
 
 namespace CommissionTask\Contract;
 
-use CommissionTask\Contract\Model as ModelInterface;
-
 interface Repository
 {
     /**

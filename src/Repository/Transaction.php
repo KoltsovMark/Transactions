@@ -1,10 +1,14 @@
 <?php
 
-namespace CommissionTask\Repository;
-use CommissionTask\Contract\Repository;
-use CommissionTask\Model\Transaction as TransactionModel;
+declare(strict_types=1);
 
-class Transaction implements Repository
+namespace CommissionTask\Repository;
+
+use CommissionTask\Contract\Repository as RepositoryInterface;
+use CommissionTask\Model\Transaction as TransactionModel;
+use DateTime;
+
+class Transaction implements RepositoryInterface
 {
     /**
      * @var TransactionModel[]
@@ -19,8 +23,33 @@ class Transaction implements Repository
         return $this->transactions;
     }
 
+    /**
+     * @param TransactionModel $transaction
+     */
     public function add(TransactionModel $transaction)
     {
         $this->transactions[] = $transaction;
+    }
+
+    /**
+     * @param int $customerId
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     *
+     * @return TransactionModel[]
+     */
+    public function getCashOutByCustomerIdAndTransactionDate(
+        int $customerId,
+        DateTime $startDate,
+        DateTime $endDate
+    ): array {
+        return \array_filter($this->getAll(),
+            function (TransactionModel $transactionModel) use ($customerId, $startDate, $endDate) {
+                return $transactionModel->getCustomer()->getId() === $customerId
+                    && $transactionModel->isCashOut()
+                    && $transactionModel->getCreatedAt() >= $startDate
+                    && $transactionModel->getCreatedAt() <= $endDate
+                ;
+        });
     }
 }
