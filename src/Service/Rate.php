@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CommissionTask\Service;
 
-use CommissionTask\Exception\RateDoNotExistException;
+use CommissionTask\Exception\RateDoNotExist as RateDoNotExistException;
 use CommissionTask\Factory\Rate as RateFactory;
 use CommissionTask\Model\Rate as RateModel;
 use CommissionTask\Repository\Rate as RateRepository;
