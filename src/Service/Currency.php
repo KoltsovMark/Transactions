@@ -17,9 +17,9 @@ class Currency
 {
     public const ROUNDING_MODE = RoundingMode::UP;
 
-    protected RateService $rateService;
-    protected CurrencyRepository $currencyRepository;
-    protected CurrencyFactory $currencyFactory;
+    private RateService $rateService;
+    private CurrencyRepository $currencyRepository;
+    private CurrencyFactory $currencyFactory;
 
     /**
      * Currency constructor.
@@ -50,7 +50,7 @@ class Currency
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     public function minus(
         string $baseCurrencyAmount,
@@ -80,7 +80,7 @@ class Currency
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     public function add(
         string $baseCurrencyAmount,
@@ -126,7 +126,7 @@ class Currency
      * @return string
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     public function convertCurrency(string $amount, string $baseCurrencyCode, string $quoteCurrencyCode): string
     {
@@ -167,7 +167,7 @@ class Currency
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     public function isGreaterThan(
         string $baseCurrencyAmount,
@@ -197,7 +197,7 @@ class Currency
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     public function isGreaterThanOrEqual(
         string $baseCurrencyAmount,
@@ -234,7 +234,7 @@ class Currency
     /**
      * @return string[]
      */
-    protected function getSupportedCurrenciesCodes(): array
+    private function getSupportedCurrenciesCodes(): array
     {
         return [
             CurrencyModel::EUR,
@@ -246,7 +246,7 @@ class Currency
     /**
      * Load default currencies to repository if rate do not exist
      */
-    protected function loadCurrencies(): void
+    private function loadCurrencies(): void
     {
         foreach (self::getSupportedCurrenciesCodes() as $currencyCode) {
             $currency = $this->currencyFactory->create($currencyCode);

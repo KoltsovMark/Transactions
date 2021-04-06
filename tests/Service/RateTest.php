@@ -113,6 +113,8 @@ class RateTest extends TestCase
      */
     public function testGetRateByCodesOrTrowRateNotFound()
     {
+        $this->expectException(RateDoNotExistException::class);
+
         $rateServicePartialMock = $this->createPartialMock(RateService::class, ['isRateSupported']);
 
         $baseCurrency = 'EUR';
@@ -124,8 +126,6 @@ class RateTest extends TestCase
             ->with(...[$baseCurrency, $quoteCurrency])
             ->willReturn(false)
         ;
-
-        $this->expectException(RateDoNotExistException::class);
 
         $rateServicePartialMock->getRateByCodesOrTrow($baseCurrency, $quoteCurrency);
     }
