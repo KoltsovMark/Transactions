@@ -12,16 +12,16 @@ use CommissionTask\Service\Math as MathService;
 
 class Rate
 {
-    protected const DEFAULT_RATES = [
+    private const DEFAULT_RATES = [
       'EUR' => [
           'USD' => '1.1497',
           'JPY' => '129.53'
       ]
     ];
 
-    protected MathService $mathService;
-    protected RateRepository $rateRepository;
-    protected RateFactory $rateFactory;
+    private MathService $mathService;
+    private RateRepository $rateRepository;
+    private RateFactory $rateFactory;
 
     /**
      * Rate constructor. Load default rates to the system.
@@ -46,7 +46,7 @@ class Rate
     /**
      * @return \string[][]
      */
-    protected static function getDefaultRatesArray(): array
+    private static function getDefaultRatesArray(): array
     {
         return self::DEFAULT_RATES;
     }
@@ -54,9 +54,9 @@ class Rate
     /**
      * Load default rates to repository if rate do not exist
      */
-    protected function loadRates(): void
+    private function loadRates(): void
     {
-        foreach (Rate::getDefaultRatesArray() as $baseCurrency => $quoteCurrencies) {
+        foreach (self::getDefaultRatesArray() as $baseCurrency => $quoteCurrencies) {
             foreach ($quoteCurrencies as $quoteCurrency => $rate) {
                 $rateModel = $this->rateFactory->create($baseCurrency, $quoteCurrency, $rate);
                 $this->rateRepository->addRate($rateModel);
@@ -67,7 +67,7 @@ class Rate
     /**
      * Calculate and load reversed rates if rate do not exist
      */
-    protected function loadReversedRates()
+    private function loadReversedRates()
     {
         foreach (Rate::getDefaultRatesArray() as $baseCurrency => $quoteCurrencies) {
             foreach ($quoteCurrencies as $quoteCurrency => $rate) {
@@ -103,12 +103,10 @@ class Rate
      */
     public function getRateByCodesOrTrow(string $baseCurrency, string $quoteCurrency): RateModel
     {
-        $rate = $this->rateRepository->getRateByCodesOrNull($baseCurrency, $quoteCurrency);
-
-        if (\is_null($rate)) {
+        if ($this->isRateSupported($baseCurrency, $quoteCurrency)) {
+            return $this->rateRepository->getRateByCodesOrNull($baseCurrency, $quoteCurrency);
+        } else {
             throw new RateDoNotExistException();
         }
-
-        return $rate;
     }
 }
