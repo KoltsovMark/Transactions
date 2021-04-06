@@ -12,13 +12,11 @@ use CommissionTask\Factory\Currency as CurrencyFactory;
 use CommissionTask\Model\Currency as CurrencyModel;
 use CommissionTask\Repository\Currency as CurrencyRepository;
 use CommissionTask\Service\Rate as RateService;
-use CommissionTask\Service\Math as MathService;
 
 class Currency
 {
     public const ROUNDING_MODE = RoundingMode::UP;
 
-    protected MathService $mathService;
     protected RateService $rateService;
     protected CurrencyRepository $currencyRepository;
     protected CurrencyFactory $currencyFactory;
@@ -26,18 +24,15 @@ class Currency
     /**
      * Currency constructor.
      *
-     * @param MathService $mathService
      * @param Rate $rateService
      * @param CurrencyRepository $currencyRepository
      * @param CurrencyFactory $currencyFactory
      */
     public function __construct(
-        MathService $mathService,
         RateService $rateService,
         CurrencyRepository $currencyRepository,
         CurrencyFactory  $currencyFactory
     ) {
-        $this->mathService = $mathService;
         $this->rateService = $rateService;
         $this->currencyRepository = $currencyRepository;
         $this->currencyFactory = $currencyFactory;
