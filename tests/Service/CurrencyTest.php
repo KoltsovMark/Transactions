@@ -63,14 +63,12 @@ class CurrencyTest extends TestCase
     ) {
         $expectedRate = $this->rateFactory->create($baseCurrencyCode, $quoteCurrencyCode, $rate);
 
-        if ($baseCurrencyCode !== $quoteCurrencyCode) {
-            $this->rateServiceMock
-                ->expects($this->once())
-                ->method('getRateByCodesOrTrow')
-                ->with(...[$baseCurrencyCode, $quoteCurrencyCode])
-                ->willReturn($expectedRate)
-            ;
-        }
+        $this->rateServiceMock
+            ->expects($this->once())
+            ->method('getRateByCodesOrTrow')
+            ->with(...[$baseCurrencyCode, $quoteCurrencyCode])
+            ->willReturn($expectedRate)
+        ;
 
         $result = $this->currencyService->convertCurrency($amount, $baseCurrencyCode, $quoteCurrencyCode);
 
@@ -118,7 +116,53 @@ class CurrencyTest extends TestCase
         ];
     }
 
-    //@todo add tests to CommissionTask\Service\Currency::minus with different Currencies
+    /**
+     * @covers \CommissionTask\Service\Currency::minus
+     *
+     * @dataProvider dataProviderForMinusTheDifferentCurrencies
+     */
+    public function testMinusTheDifferentCurrencies(
+        string $baseCurrencyAmonut,
+        string $baseCurrencyCode,
+        string $quoteCurrencyAmonut,
+        string $quoteCurrencyCode,
+        string $expectedConvertedAmount,
+        string $expectation
+    ) {
+        $currencyServicePartialMock = $this->createPartialMock(
+            CurrencyService::class,
+            ['convertCurrency']
+        );
+
+        $currencyServicePartialMock
+            ->expects($this->once())
+            ->method('convertCurrency')
+            ->with(...[$quoteCurrencyAmonut, $quoteCurrencyCode, $baseCurrencyCode])
+            ->willReturn($expectedConvertedAmount)
+        ;
+
+        $result = $currencyServicePartialMock->minus(
+            $baseCurrencyAmonut,
+            $baseCurrencyCode,
+            $quoteCurrencyAmonut,
+            $quoteCurrencyCode
+        );
+
+        $this->assertEquals($expectation, $result);
+    }
+
+    /**
+     * @return \string[][]
+     */
+    public function dataProviderForMinusTheDifferentCurrencies()
+    {
+        return [
+            'minus 2 natural numbers' => ['10', 'EUR', '5', 'USD', '4.35', '5.65'],
+            'minus 2 float number' => ['10.0578', 'EUR', '2.123', 'USD', '1.07', '8.99'],
+            'minus positive number from a negative' => ['-2.06', 'EUR', '1.05123', 'USD', '0.93', '-2.99'],
+            'minus natural number from a float number' => ['2.067', 'EUR', '1', 'USD', '0.87', '1.20'],
+        ];
+    }
 
     protected function setUp(): void
     {
