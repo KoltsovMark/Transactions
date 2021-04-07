@@ -178,7 +178,7 @@ class Currency
         $baseMoney = Money::of($baseCurrencyAmount, $baseCurrencyCode, null, self::ROUNDING_MODE);
 
         if ($baseCurrencyCode !== $quoteCurrencyCode) {
-            $quoteCurrencyAmount = $this->convertCurrency($quoteCurrencyAmount, $baseCurrencyCode, $quoteCurrencyCode);
+            $quoteCurrencyAmount = $this->convertCurrency($quoteCurrencyAmount, $quoteCurrencyCode, $baseCurrencyCode);
             $quoteCurrencyCode = $baseCurrencyCode;
         }
 
@@ -208,7 +208,7 @@ class Currency
         $baseMoney = Money::of($baseCurrencyAmount, $baseCurrencyCode, null, self::ROUNDING_MODE);
 
         if ($baseCurrencyCode !== $quoteCurrencyCode) {
-            $quoteCurrencyAmount = $this->convertCurrency($quoteCurrencyAmount, $baseCurrencyCode, $quoteCurrencyCode);
+            $quoteCurrencyAmount = $this->convertCurrency($quoteCurrencyAmount, $quoteCurrencyCode, $baseCurrencyCode);
             $quoteCurrencyCode = $baseCurrencyCode;
         }
 

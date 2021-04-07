@@ -13,6 +13,7 @@ use CommissionTask\Repository\Currency as CurrencyRepository;
 use CommissionTask\Service\Rate as RateService;
 use CommissionTask\Service\Currency as CurrencyService;
 
+//@todo add tests on exceptions
 class CurrencyTest extends TestCase
 {
     protected RateService $rateServiceMock;
@@ -161,6 +162,213 @@ class CurrencyTest extends TestCase
             'minus 2 float number' => ['10.0578', 'EUR', '2.123', 'USD', '1.07', '8.99'],
             'minus positive number from a negative' => ['-2.06', 'EUR', '1.05123', 'USD', '0.93', '-2.99'],
             'minus natural number from a float number' => ['2.067', 'EUR', '1', 'USD', '0.87', '1.20'],
+        ];
+    }
+
+    /**
+     * @covers \CommissionTask\Service\Currency::add
+     *
+     * @dataProvider dataProviderForAddTheSameCurrency
+     */
+    public function testAddTheSameCurrency(
+        string $baseCurrencyAmonut,
+        string $quoteCurrencyAmonut,
+        string $currencyCode,
+        string $expectation
+    ) {
+        $result = $this->currencyService->add($baseCurrencyAmonut, $currencyCode, $quoteCurrencyAmonut, $currencyCode);
+
+        $this->assertEquals($expectation, $result);
+    }
+
+    /**
+     * @return \string[][]
+     */
+    public function dataProviderForAddTheSameCurrency()
+    {
+        return [
+            'add 2 natural numbers' => ['10', '5', 'EUR', '15.00'],
+            'add 2 float number' => ['10.0578', '2.123', 'EUR', '12.19'],
+            'add positive number from a negative' => ['-2.06', '1.05123', 'EUR', '-1.00'],
+            'add natural number from a float number' => ['2.067', '1', 'EUR', '3.07'],
+        ];
+    }
+
+    /**
+     * @covers \CommissionTask\Service\Currency::add
+     *
+     * @dataProvider dataProviderForAddTheDifferentCurrencies
+     */
+    public function testAddTheDifferentCurrencies(
+        string $baseCurrencyAmonut,
+        string $baseCurrencyCode,
+        string $quoteCurrencyAmonut,
+        string $quoteCurrencyCode,
+        string $expectedConvertedAmount,
+        string $expectation
+    ) {
+        $currencyServicePartialMock = $this->createPartialMock(
+            CurrencyService::class,
+            ['convertCurrency']
+        );
+
+        $currencyServicePartialMock
+            ->expects($this->once())
+            ->method('convertCurrency')
+            ->with(...[$quoteCurrencyAmonut, $quoteCurrencyCode, $baseCurrencyCode])
+            ->willReturn($expectedConvertedAmount)
+        ;
+
+        $result = $currencyServicePartialMock->add(
+            $baseCurrencyAmonut,
+            $baseCurrencyCode,
+            $quoteCurrencyAmonut,
+            $quoteCurrencyCode
+        );
+
+        $this->assertEquals($expectation, $result);
+    }
+
+    /**
+     * @return \string[][]
+     */
+    public function dataProviderForAddTheDifferentCurrencies()
+    {
+        return [
+            'minus 2 natural numbers' => ['10', 'EUR', '5', 'USD', '4.35', '14.35'],
+            'minus 2 float number' => ['10.0578', 'EUR', '2.123', 'USD', '1.07', '11.13'],
+            'minus positive number from a negative' => ['-2.06', 'EUR', '1.05123', 'USD', '0.93', '-1.13'],
+            'minus natural number from a float number' => ['2.067', 'EUR', '1', 'USD', '0.87', '2.94'],
+        ];
+    }
+
+    /**
+     * @covers \CommissionTask\Service\Currency::getFeePercentageForCurrency
+     *
+     * @dataProvider dataProviderForGetFeePercentageForCurrency
+     */
+    public function testGetFeePercentageForCurrency(
+        string $amount,
+        string $percents,
+        string $currencyCode,
+        string $expectation
+    ) {
+        $this->assertEquals(
+            $expectation,
+            $this->currencyService->getFeePercentageForCurrency($amount, $percents, $currencyCode)
+        );
+    }
+
+    /**
+     * @return \string[][]
+     */
+    public function dataProviderForGetFeePercentageForCurrency()
+    {
+        return [
+            'percentage of natural number with natural percentage' => ['10', '1', 'EUR', '0.10'],
+            'percentage of float number with natural percentage' => ['10.567', '1', 'EUR', '0.11'],
+            'percentage of natural negative number with natural percentage' => ['-10', '1', 'EUR', '-0.10'],
+            'percentage of float negative number with natural percentage' => ['-10.567', '1', 'EUR', '-0.11'],
+            'percentage of natural number with float percentage' => ['10', '0.03', 'EUR', '0.01'],
+            'percentage of float number with float percentage' => ['10.567', '0.03', 'EUR', '0.01'],
+            'percentage of natural negative number with float percentage' => ['-10', '0.3', 'EUR', '-0.03'],
+            'percentage of float negative number with float percentage' => ['-10.567', '0.3', 'EUR', '-0.04'],
+        ];
+    }
+
+    /**
+     * @covers \CommissionTask\Service\Currency::getEmptyAmount
+     */
+    public function testGetEmptyAmount()
+    {
+        $this->assertEquals('0.00', $this->currencyService->getEmptyAmount('EUR'));
+    }
+
+    /**
+     * @covers \CommissionTask\Service\Currency::isGreaterThan
+     *
+     * @dataProvider dataProviderForIsGreaterThanTheSameCurrencies
+     */
+    public function testIsGreaterThanTheSameCurrencies(
+        string $baseCurrencyAmonut,
+        string $quoteCurrencyAmonut,
+        string $currencyCode,
+        bool $expectation
+    ) {
+
+
+        $this->assertEquals($expectation, $this->currencyService->isGreaterThan(
+            $baseCurrencyAmonut,
+            $currencyCode,
+            $quoteCurrencyAmonut,
+            $currencyCode
+        ));
+    }
+
+    /**
+     * @covers \CommissionTask\Service\Currency::isGreaterThan
+     */
+    public function dataProviderForIsGreaterThanTheSameCurrencies()
+    {
+        return [
+            'natural number 1 is greater then natural number 2 with the same currencies' => ['4', '3', 'EUR', true],
+            'natural number 1 is equal with natural number 2 with the same currencies' => ['4', '4', 'EUR', false],
+            'natural number 1 is less then natural number 2 with the same currencies' => ['3', '4', 'EUR', false],
+            'float number 1 is greater then float number 2 with the same currencies' => ['4.221', '4.22', 'EUR', true],
+            'natural number 1 is greater then float number 2 with the same currencies' => ['4', '3.989', 'EUR', true],
+            'natural number 1 is equal with float number 2 with the same currencies' => ['4', '3.999', 'EUR', false],
+            'natural number 1 is less then float number 2 with the same currencies' => ['3', '3.001', 'EUR', false],
+            'natural number 1 is greater then negative float number 2 with the same currencies' => ['4', '-3.989', 'EUR', true],
+            'natural negative number 1 is less then negative float number 2 with the same currencies' => ['-4', '-3.50', 'EUR', false],
+        ];
+    }
+
+    /**
+     * @covers \CommissionTask\Service\Currency::isGreaterThan
+     *
+     * @dataProvider dataProviderForIsGreaterThanTheDifferentCurrencies
+     */
+    public function testIsGreaterThanTheDifferentCurrencies(
+        string $baseCurrencyAmonut,
+        string $baseCurrencyCode,
+        string $quoteCurrencyAmonut,
+        string $quoteCurrencyCode,
+        string $expectedConvertedAmount,
+        bool $expectation
+    ) {
+        $currencyServicePartialMock = $this->createPartialMock(
+            CurrencyService::class,
+            ['convertCurrency']
+        );
+
+        $currencyServicePartialMock
+            ->expects($this->once())
+            ->method('convertCurrency')
+            ->with(...[$quoteCurrencyAmonut, $quoteCurrencyCode, $baseCurrencyCode])
+            ->willReturn($expectedConvertedAmount)
+        ;
+
+        $result = $currencyServicePartialMock->isGreaterThan(
+            $baseCurrencyAmonut,
+            $baseCurrencyCode,
+            $quoteCurrencyAmonut,
+            $quoteCurrencyCode
+        );
+
+        $this->assertEquals($expectation, $result);
+    }
+
+    /**
+     * @covers \CommissionTask\Service\Currency::isGreaterThan
+     */
+    public function dataProviderForIsGreaterThanTheDifferentCurrencies()
+    {
+        return [
+            'natural number 1 in EUR is greater then natural number 2 in USD' => ['4', 'EUR', '3', 'USD', '2.61', true],
+            'natural number 1 in EUR is equal with float number 2 in USD' => ['4', 'EUR', '4.60', 'USD', '4', false],
+            'natural number 1 in EUR is less then float number 2 in USD' => ['3', 'EUR', '4.60', 'USD', '4', false],
+            'natural number 1 in EUR is greater then negative float number 2 in USD' => ['4', 'EUR', '-3', 'USD', '-2.61', true],
+            'natural negative number 1 in EUR is less then negative float number 2 in USD' => ['-4', 'EUR', '-3', 'USD', '-2.61', false],
         ];
     }
 
