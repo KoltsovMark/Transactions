@@ -9,13 +9,13 @@ class Transaction
     public const TYPE_CASH_IN = 'cash_in';
     public const TYPE_CASH_OUT = 'cash_out';
 
-    protected string $amount;
-    protected string $commission;
-    protected Currency $currency;
-    protected Customer $customer;
-    protected string $type;
-    protected DateTime $createdAt;
-    protected Rate $rate;
+    private string $amount;
+    private string $commission;
+    private Currency $currency;
+    private Customer $customer;
+    private string $type;
+    private DateTime $createdAt;
+    private Rate $rate;
 
     /**
      * @return string

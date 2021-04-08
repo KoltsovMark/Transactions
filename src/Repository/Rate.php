@@ -12,12 +12,12 @@ class Rate implements RepositoryInterface
     /**
      * @var RateModel[]
      */
-    protected array $rates = [];
+    private array $rates = [];
 
     /**
      * @return RateModel[]
      */
-    public function getALl()
+    public function getALl(): array
     {
         return $this->rates;
     }
@@ -40,13 +40,11 @@ class Rate implements RepositoryInterface
     }
 
     /**
-     * @param string $baseCurrency
-     * @param string $quoteCurrency
-     * @param string $rate
+     * @param RateModel $rate
      *
      * @return $this
      */
-    public function addRate(RateModel $rate): Rate
+    public function add(RateModel $rate): Rate
     {
         if (is_null($this->getRateByCodesOrNull($rate->getBaseCurrency(), $rate->getQuoteCurrency()))) {
             $this->rates[] = $rate;

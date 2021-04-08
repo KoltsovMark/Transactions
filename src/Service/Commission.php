@@ -53,8 +53,8 @@ class Commission
         ],
     ];
 
-    protected TransactionRepository $transactionRepository;
-    protected CurrencyService $currencyService;
+    private TransactionRepository $transactionRepository;
+    private CurrencyService $currencyService;
 
     /**
      * Commission constructor.

@@ -6,12 +6,12 @@ namespace CommissionTask\Dto;
 
 class TransactionCommission
 {
-    protected string $amount;
-    protected string $currencyCode;
-    protected int $customerId;
-    protected string $customerType;
-    protected string $transactionType;
-    protected string $createdAt;
+    private string $amount;
+    private string $currencyCode;
+    private int $customerId;
+    private string $customerType;
+    private string $transactionType;
+    private string $createdAt;
 
     /**
      * @return string

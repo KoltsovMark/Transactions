@@ -16,12 +16,12 @@ use CommissionTask\Service\Commission as CommissionService;
 
 class Transaction
 {
-    protected TransactionRepository $transactionRepository;
-    protected CommissionService $commissionService;
-    protected TransactionCommissionFactory $transactionCommissionFactory;
-    protected TransactionFactory $transactionFactory;
-    protected CustomerFactory $customerFactory;
-    protected CurrencyFactory $currencyFactory;
+    private TransactionRepository $transactionRepository;
+    private CommissionService $commissionService;
+    private TransactionCommissionFactory $transactionCommissionFactory;
+    private TransactionFactory $transactionFactory;
+    private CustomerFactory $customerFactory;
+    private CurrencyFactory $currencyFactory;
 
     /**
      * Transaction constructor.

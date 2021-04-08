@@ -7,8 +7,8 @@ class Customer
     public const NATURAL_TYPE = 'natural';
     public const LEGAL_TYPE = 'legal';
 
-    protected int $id;
-    protected string $type;
+    private int $id;
+    private string $type;
 
     /**
      * @return int

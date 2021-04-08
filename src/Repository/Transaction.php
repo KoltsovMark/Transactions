@@ -13,12 +13,12 @@ class Transaction implements RepositoryInterface
     /**
      * @var TransactionModel[]
      */
-    protected $transactions = [];
+    private array $transactions = [];
 
     /**
      * @return TransactionModel[]
      */
-    public function getAll()
+    public function getAll(): array
     {
         return $this->transactions;
     }

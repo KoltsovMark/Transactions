@@ -12,12 +12,12 @@ class Currency implements RepositoryInterface
     /**
      * @var CurrencyModel[]
      */
-    protected array $currencies = [];
+    private array $currencies = [];
 
     /**
      * @return CurrencyModel[]
      */
-    public function getAll()
+    public function getAll(): array
     {
         return $this->currencies;
     }

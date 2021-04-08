@@ -6,9 +6,9 @@ namespace CommissionTask\Model;
 
 class Rate
 {
-    protected string $baseCurrency;
-    protected string $quoteCurrency;
-    protected string $rate;
+    private string $baseCurrency;
+    private string $quoteCurrency;
+    private string $rate;
 
     /**
      * @return string

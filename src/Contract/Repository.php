@@ -7,5 +7,5 @@ interface Repository
     /**
      * @return object[]
      */
-    public function getAll();
+    public function getAll(): array;
 }

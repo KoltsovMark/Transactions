@@ -59,7 +59,7 @@ class Rate
         foreach (self::getDefaultRatesArray() as $baseCurrency => $quoteCurrencies) {
             foreach ($quoteCurrencies as $quoteCurrency => $rate) {
                 $rateModel = $this->rateFactory->create($baseCurrency, $quoteCurrency, $rate);
-                $this->rateRepository->addRate($rateModel);
+                $this->rateRepository->add($rateModel);
             }
         }
     }
@@ -78,7 +78,7 @@ class Rate
                         $this->mathService->divide('1', $rate)
                     )
                 ;
-                $this->rateRepository->addRate($rateModel);
+                $this->rateRepository->add($rateModel);
             }
         }
     }
