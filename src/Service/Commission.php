@@ -160,7 +160,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     protected function applyCashInMaxLimitCheck(string $amount, string $currencyCode): string
     {
@@ -197,7 +197,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     protected function applyCashOutLegalMinLimitCheck(string $amount, string $currencyCode): string
     {
@@ -235,7 +235,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     protected function applyCashOutNaturalFreeOfChargeCheck(
         string $transactionAmount,
@@ -315,7 +315,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     protected function isExceedCashOutNaturalFreeOfChargeTransactionsAmountLimit(
         int $customerId,
@@ -359,7 +359,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExistException
+     * @throws \CommissionTask\Exception\RateDoNotExist
      */
     protected function calculateCashOutNaturalFreeOfChargeAmountReminderInBaseCurrency(
         int $customerId,
