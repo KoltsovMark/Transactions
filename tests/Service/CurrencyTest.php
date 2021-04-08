@@ -46,6 +46,7 @@ class CurrencyTest extends TestCase
             'convert natural number EUR to EUR' => ['10', 'EUR', 'EUR', '10.00'],
             'convert float number EUR to EUR' => ['10.05', 'EUR', 'EUR', '10.05'],
             'convert float number EUR to EUR with rounding' => ['10.0523', 'EUR', 'EUR', '10.06'],
+            'convert float number JPY to JPY with rounding' => ['10.01', 'JPY', 'JPY', '11'],
         ];
     }
 
@@ -277,10 +278,23 @@ class CurrencyTest extends TestCase
 
     /**
      * @covers \CommissionTask\Service\Currency::getEmptyAmount
+     *
+     * @dataProvider dataProviderForGetEmptyAmount
      */
-    public function testGetEmptyAmount()
+    public function testGetEmptyAmount(string $currencyCode, string $expectation)
     {
-        $this->assertEquals('0.00', $this->currencyService->getEmptyAmount('EUR'));
+        $this->assertEquals($expectation, $this->currencyService->getEmptyAmount($currencyCode));
+    }
+
+    /**
+     * @return \string[][]
+     */
+    public function dataProviderForGetEmptyAmount()
+    {
+        return [
+            'get empty ammount for EUR' => ['EUR', '0.00'],
+            'get empty ammount for JPY' => ['JPY', '0'],
+        ];
     }
 
     /**
