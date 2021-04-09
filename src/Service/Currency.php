@@ -25,13 +25,11 @@ class Currency
      * Currency constructor.
      *
      * @param Rate $rateService
-     * @param CurrencyRepository $currencyRepository
-     * @param CurrencyFactory $currencyFactory
      */
     public function __construct(
         RateService $rateService,
         CurrencyRepository $currencyRepository,
-        CurrencyFactory  $currencyFactory
+        CurrencyFactory $currencyFactory
     ) {
         $this->rateService = $rateService;
         $this->currencyRepository = $currencyRepository;
@@ -41,12 +39,6 @@ class Currency
     }
 
     /**
-     * @param string $baseCurrencyAmount
-     * @param string $baseCurrencyCode
-     * @param string $quoteCurrencyAmount
-     * @param string $quoteCurrencyCode
-     *
-     * @return string
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
@@ -71,12 +63,8 @@ class Currency
     }
 
     /**
-     * @param string $baseCurrencyAmount
-     * @param string $baseCurrencyCode
-     * @param string $quoteCurrencyAmount
-     * @param string $quoteCurrencyCode
-     *
      * @return string
+     *
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
@@ -101,11 +89,8 @@ class Currency
     }
 
     /**
-     * @param string $amount
-     * @param string $percents
-     * @param string $currencyCode
-     *
      * @return string
+     *
      * @throws \Brick\Money\Exception\UnknownCurrencyException
      */
     public function getFeePercentageForCurrency(string $amount, string $percents, string $currencyCode)
@@ -119,11 +104,6 @@ class Currency
     }
 
     /**
-     * @param string $amount
-     * @param string $baseCurrencyCode
-     * @param string $quoteCurrencyCode
-     *
-     * @return string
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
      * @throws \CommissionTask\Exception\RateDoNotExist
@@ -147,9 +127,6 @@ class Currency
     }
 
     /**
-     * @param string $currencyCode
-     *
-     * @return string
      * @throws \Brick\Money\Exception\UnknownCurrencyException
      */
     public function getEmptyAmount(string $currencyCode): string
@@ -158,12 +135,6 @@ class Currency
     }
 
     /**
-     * @param string $baseCurrencyAmount
-     * @param string $baseCurrencyCode
-     * @param string $quoteCurrencyAmount
-     * @param string $quoteCurrencyCode
-     *
-     * @return bool
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
@@ -188,12 +159,6 @@ class Currency
     }
 
     /**
-     * @param string $baseCurrencyAmount
-     * @param string $baseCurrencyCode
-     * @param string $quoteCurrencyAmount
-     * @param string $quoteCurrencyCode
-     *
-     * @return bool
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
@@ -221,7 +186,6 @@ class Currency
      * @param $amount
      * @param $currency
      *
-     * @return bool
      * @throws \Brick\Money\Exception\UnknownCurrencyException
      */
     public function isPositive($amount, $currency): bool
@@ -244,7 +208,7 @@ class Currency
     }
 
     /**
-     * Load default currencies to repository if rate do not exist
+     * Load default currencies to repository if rate do not exist.
      */
     private function loadCurrencies(): void
     {

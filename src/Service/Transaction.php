@@ -27,11 +27,6 @@ class Transaction
      * Transaction constructor.
      *
      * @param Commission $commissionService
-     * @param TransactionRepository $transactionRepository
-     * @param TransactionCommissionFactory $transactionCommissionFactory
-     * @param TransactionFactory $transactionFactory
-     * @param CustomerFactory $customerFactory
-     * @param CurrencyFactory $currencyFactory
      */
     public function __construct(
         CommissionService $commissionService,
@@ -50,9 +45,6 @@ class Transaction
     }
 
     /**
-     * @param NewTransactionDto $newTransactionDto
-     *
-     * @return TransactionModel
      * @throws FunctionalInDevelopmentException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
      */

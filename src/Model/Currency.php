@@ -12,22 +12,18 @@ class Currency
 
     protected ?string $code = null;
 
-    /**
-     * @return string|null
-     */
     public function getCode(): ?string
     {
         return $this->code;
     }
 
     /**
-     * @param string $code
-     *
      * @return Currency
      */
     public function setCode(string $code): self
     {
         $this->code = $code;
+
         return $this;
     }
 }

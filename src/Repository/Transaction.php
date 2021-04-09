@@ -23,19 +23,12 @@ class Transaction implements RepositoryInterface
         return $this->transactions;
     }
 
-    /**
-     * @param TransactionModel $transaction
-     */
     public function add(TransactionModel $transaction)
     {
         $this->transactions[] = $transaction;
     }
 
     /**
-     * @param int $customerId
-     * @param DateTime $startDate
-     * @param DateTime $endDate
-     *
      * @return TransactionModel[]
      */
     public function getCashOutByCustomerIdAndTransactionDate(
@@ -50,6 +43,6 @@ class Transaction implements RepositoryInterface
                     && $transactionModel->getCreatedAt() >= $startDate
                     && $transactionModel->getCreatedAt() <= $endDate
                 ;
-        });
+            });
     }
 }

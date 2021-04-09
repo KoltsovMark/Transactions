@@ -22,12 +22,6 @@ class Rate implements RepositoryInterface
         return $this->rates;
     }
 
-    /**
-     * @param string $baseCurrency
-     * @param string $quoteCurrency
-     *
-     * @return RateModel|null
-     */
     public function getRateByCodesOrNull(string $baseCurrency, string $quoteCurrency): ?RateModel
     {
         foreach ($this->getALl() as $rate) {
@@ -40,8 +34,6 @@ class Rate implements RepositoryInterface
     }
 
     /**
-     * @param RateModel $rate
-     *
      * @return $this
      */
     public function add(RateModel $rate): Rate

@@ -9,18 +9,12 @@ use CommissionTask\Model\Transaction as TransactionModel;
 
 class Transaction
 {
-    /**
-     * @return TransactionModel
-     */
     public function createEmpty(): TransactionModel
     {
         return new TransactionModel();
     }
 
     /**
-     * @param NewTransactionDto $newTransactionDto
-     *
-     * @return TransactionModel
      * @throws \Exception
      */
     public function createFromNewTransactionDto(NewTransactionDto $newTransactionDto): TransactionModel

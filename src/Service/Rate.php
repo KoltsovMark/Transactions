@@ -15,8 +15,8 @@ class Rate
     private const DEFAULT_RATES = [
       'EUR' => [
           'USD' => '1.1497',
-          'JPY' => '129.53'
-      ]
+          'JPY' => '129.53',
+      ],
     ];
 
     private MathService $mathService;
@@ -27,8 +27,6 @@ class Rate
      * Rate constructor. Load default rates to the system.
      *
      * @param Math $mathService
-     * @param RateRepository $rateRepository
-     * @param RateFactory $rateFactory
      */
     public function __construct(
         MathService $mathService,
@@ -52,7 +50,7 @@ class Rate
     }
 
     /**
-     * Load default rates to repository if rate do not exist
+     * Load default rates to repository if rate do not exist.
      */
     private function loadRates(): void
     {
@@ -65,7 +63,7 @@ class Rate
     }
 
     /**
-     * Calculate and load reversed rates if rate do not exist
+     * Calculate and load reversed rates if rate do not exist.
      */
     private function loadReversedRates()
     {
@@ -83,22 +81,12 @@ class Rate
         }
     }
 
-    /**
-     * @param string $baseCurrency
-     * @param string $quoteCurrency
-     *
-     * @return bool
-     */
     public function isRateSupported(string $baseCurrency, string $quoteCurrency): bool
     {
         return (bool) $this->rateRepository->getRateByCodesOrNull($baseCurrency, $quoteCurrency);
     }
 
     /**
-     * @param string $baseCurrency
-     * @param string $quoteCurrency
-     *
-     * @return RateModel
      * @throws RateDoNotExistException
      */
     public function getRateByCodesOrTrow(string $baseCurrency, string $quoteCurrency): RateModel

@@ -9,19 +9,11 @@ use CommissionTask\Model\Customer as CustomerModel;
 
 class Customer
 {
-    /**
-     * @return CustomerModel
-     */
     public function createEmpty(): CustomerModel
     {
         return new CustomerModel();
     }
 
-    /**
-     * @param NewTransactionDto $newTransactionDto
-     *
-     * @return CustomerModel
-     */
     public function createFromNewTransactionDto(NewTransactionDto $newTransactionDto): CustomerModel
     {
         $customer = $this->createEmpty();

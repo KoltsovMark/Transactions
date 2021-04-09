@@ -8,19 +8,11 @@ use CommissionTask\Dto\NewTransaction as NewTransactionDto;
 
 class NewTransaction
 {
-    /**
-     * @return NewTransactionDto
-     */
     public function createEmpty(): NewTransactionDto
     {
         return new NewTransactionDto();
     }
 
-    /**
-     * @param array $data
-     *
-     * @return NewTransactionDto
-     */
     public function createFromArray(array $data): NewTransactionDto
     {
         $dto = $this->createEmpty();

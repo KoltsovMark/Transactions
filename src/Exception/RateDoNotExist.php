@@ -8,5 +8,5 @@ use Exception;
 
 class RateDoNotExist extends Exception
 {
-     protected $message = 'Rate do not exist';
+    protected $message = 'Rate do not exist';
 }

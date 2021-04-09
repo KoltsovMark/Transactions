@@ -20,12 +20,6 @@ class Math
         $this->roundingMode = $roundingMode;
     }
 
-    /**
-     * @param string $leftOperand
-     * @param string $rightOperand
-     *
-     * @return string
-     */
     public function add(string $leftOperand, string $rightOperand): string
     {
         return (string) BigRational::of($leftOperand)
@@ -34,12 +28,6 @@ class Math
             ;
     }
 
-    /**
-     * @param string $leftOperand
-     * @param string $rightOperand
-     *
-     * @return string
-     */
     public function divide(string $leftOperand, string $rightOperand): string
     {
         return (string) BigRational::of($leftOperand)

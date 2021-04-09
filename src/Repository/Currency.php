@@ -22,11 +22,6 @@ class Currency implements RepositoryInterface
         return $this->currencies;
     }
 
-    /**
-     * @param string $currencyCode
-     *
-     * @return CurrencyModel|null
-     */
     public function getCurrencyByCodeOrNull(string $currencyCode): ?CurrencyModel
     {
         foreach ($this->getAll() as $currency) {
@@ -38,11 +33,6 @@ class Currency implements RepositoryInterface
         return null;
     }
 
-    /**
-     * @param CurrencyModel $currency
-     *
-     * @return Currency
-     */
     public function add(CurrencyModel $currency): Currency
     {
         if (is_null($this->getCurrencyByCodeOrNull($currency->getCode()))) {

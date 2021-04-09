@@ -39,7 +39,7 @@ class Commission
                     'max_transactions' => 3,
                     'renewal' => self::TYPE_RENEWAL_WEEKLY,
                     'allow_exceeded_amount_fee' => true,
-                ]
+                ],
             ],
             'legal_person' => [
                 'fee' => [
@@ -60,7 +60,6 @@ class Commission
      * Commission constructor.
      *
      * @param Currency $currencyService
-     * @param TransactionRepository $transactionRepository
      */
     public function __construct(
         CurrencyService $currencyService,
@@ -71,9 +70,6 @@ class Commission
     }
 
     /**
-     * @param TransactionCommissionDto $transactionCommissionDto
-     *
-     * @return string
      * @throws FunctionalInDevelopmentException
      */
     public function calculateCashInCommission(TransactionCommissionDto $transactionCommissionDto): string
@@ -93,11 +89,6 @@ class Commission
         throw new FunctionalInDevelopmentException();
     }
 
-    /**
-     * @param TransactionCommissionDto $transactionCommissionDto
-     *
-     * @return string
-     */
     public function calculateCashOutNaturalCommission(TransactionCommissionDto $transactionCommissionDto): string
     {
         // @todo add validation
@@ -111,9 +102,6 @@ class Commission
     }
 
     /**
-     * @param TransactionCommissionDto $transactionCommissionDto
-     *
-     * @return string
      * @throws FunctionalInDevelopmentException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
      */
@@ -135,11 +123,8 @@ class Commission
     }
 
     /**
-     * @param string $amount
-     * @param string $feePercentage
-     * @param string $currencyCode
-     *
      * @return string
+     *
      * @throws \Brick\Money\Exception\UnknownCurrencyException
      */
     protected function calculateFeePercentage(string $amount, string $feePercentage, string $currencyCode)
@@ -152,10 +137,6 @@ class Commission
     }
 
     /**
-     * @param string $amount
-     * @param string $currencyCode
-     *
-     * @return string
      * @throws FunctionalInDevelopmentException
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
@@ -189,10 +170,6 @@ class Commission
     }
 
     /**
-     * @param string $amount
-     * @param string $currencyCode
-     *
-     * @return string
      * @throws FunctionalInDevelopmentException
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
@@ -211,7 +188,7 @@ class Commission
                 self::CONFIGURATION['cash_out']['legal_person']['fee']['min_amount_currency']
             );
 
-            if ( ! $isExceedsCashInMinLimit) {
+            if (!$isExceedsCashInMinLimit) {
                 $fee = $this->currencyService->convertCurrency(
                     self::CONFIGURATION['cash_out']['legal_person']['fee']['min_amount'],
                     $currencyCode,
@@ -226,12 +203,6 @@ class Commission
     }
 
     /**
-     * @param string $transactionAmount
-     * @param string $transactionCurrency
-     * @param string $transactionDate
-     * @param int $customerId
-     *
-     * @return string
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
@@ -286,10 +257,6 @@ class Commission
     }
 
     /**
-     * @param int $customerId
-     * @param string $transactionDate
-     *
-     * @return bool
      * @throws \Exception
      */
     protected function isExceedCashOutNaturalFreeOfChargeTransactionsLimit(
@@ -308,10 +275,6 @@ class Commission
     }
 
     /**
-     * @param int $customerId
-     * @param string $transactionDate
-     *
-     * @return bool
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
@@ -332,7 +295,7 @@ class Commission
             self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
         );
 
-        if ( ! empty($transactions)) {
+        if (!empty($transactions)) {
             foreach ($transactions as $transaction) {
                 $transactionsAmount = $this->currencyService->add(
                     $transactionsAmount,
@@ -352,10 +315,6 @@ class Commission
     }
 
     /**
-     * @param int $customerId
-     * @param string $transactionDate
-     *
-     * @return string
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
@@ -377,7 +336,7 @@ class Commission
             ->getCashOutByCustomerIdAndTransactionDate($customerId, $startOfWeek, $endOfWeek)
         ;
 
-        if ( ! empty($transactions)) {
+        if (!empty($transactions)) {
             foreach ($transactions as $transaction) {
                 $transactionsAmountInBaseCurrency = $this->currencyService->add(
                     $transactionsAmountInBaseCurrency,
