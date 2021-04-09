@@ -38,6 +38,20 @@ class Currency
         $this->loadCurrencies();
     }
 
+    public static function getSupportedCurrenciesCodes(): array
+    {
+        return [
+            CurrencyModel::EUR,
+            CurrencyModel::USD,
+            CurrencyModel::JPY,
+        ];
+    }
+
+    public static function isSupportedCurrencyCode(string $currencyCode): bool
+    {
+        return \in_array($currencyCode, self::getSupportedCurrenciesCodes(), true);
+    }
+
     /**
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
@@ -193,18 +207,6 @@ class Currency
         $money = Money::of($amount, $currency, null, self::ROUNDING_MODE);
 
         return $money->isPositive();
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getSupportedCurrenciesCodes(): array
-    {
-        return [
-            CurrencyModel::EUR,
-            CurrencyModel::USD,
-            CurrencyModel::JPY,
-        ];
     }
 
     /**

@@ -19,6 +19,7 @@ use CommissionTask\Service\Math as MathService;
 use CommissionTask\Service\Rate as RateService;
 use CommissionTask\Service\Transaction as TransactionService;
 use CommissionTask\Service\TransactionOperation as TransactionOperationService;
+use CommissionTask\Validator\ProcessTransaction as ProcessTransactionValidator;
 
 //@todo add DI autowire
 // Init Repositories
@@ -49,6 +50,9 @@ $transactionOperationService = new TransactionOperationService(
     $currencyFactory
 );
 
+//Init Validators
+$processTransactionValidator = new ProcessTransactionValidator();
+
 $transactionsSource = null;
 
 if (isset($argc) && $argc === 2) {
@@ -62,12 +66,12 @@ if (file_exists($transactionsSource)) {
         $raw = fgetcsv($fileHandle);
 
         if ($raw) {
-            if (count($raw) === 6) {
-                $newTransactionDto = $newTransactionFactory->createFromArray($raw);
+            $newTransactionDto = $newTransactionFactory->createFromArray($raw);
 
+            if ($processTransactionValidator->isValid($newTransactionDto->toArray())) {
                 $transactionOperationService->processTransaction($newTransactionDto);
-            }else {
-                throw new SourceOfTransactionsDoNotMatchFormatException();
+            } else {
+                throw new SourceOfTransactionsDoNotMatchFormatException($processTransactionValidator->getFirstError());
             }
         }
     }

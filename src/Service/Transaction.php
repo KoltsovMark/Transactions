@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CommissionTask\Service;
 
 use Carbon\Carbon;
+use CommissionTask\Model\Transaction as TransactionModel;
 use CommissionTask\Repository\Transaction as TransactionRepository;
 
 class Transaction
@@ -14,6 +15,11 @@ class Transaction
     public function __construct(TransactionRepository $transactionRepository)
     {
         $this->transactionRepository = $transactionRepository;
+    }
+
+    public static function isSupportedTransactionType(string $transactionType): bool
+    {
+        return \in_array($transactionType, [TransactionModel::TYPE_CASH_OUT, TransactionModel::TYPE_CASH_IN], true);
     }
 
     public function getWeeklyCashOutTransactionsByCustomerAndDate(int $customerId, string $transactionDate): array

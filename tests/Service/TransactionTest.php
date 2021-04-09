@@ -15,6 +15,28 @@ class TransactionTest extends TestCase
     protected TransactionRepository $transactionRepositoryMock;
 
     /**
+     * @covers \CommissionTask\Service\Transaction::isSupportedTransactionType
+     *
+     * @dataProvider dataProviderForIsSupportedTransactionType
+     */
+    public function testIsSupportedTransactionType(string $transactionType, bool $expectation)
+    {
+        $this->assertEquals($expectation, TransactionService::isSupportedTransactionType($transactionType));
+    }
+
+    /**
+     * @return array[]
+     */
+    public function dataProviderForIsSupportedTransactionType()
+    {
+        return [
+            'cash_in type is supported' => ['cash_in', true],
+            'cash_out type is supported' => ['cash_out', true],
+            'cash type is not supported' => ['cash', false],
+        ];
+    }
+
+    /**
      * @covers \CommissionTask\Service\Transaction::getWeeklyCashOutTransactionsByCustomerAndDate
      *
      * @dataProvider dataProviderForGetWeeklyCashOutTransactionsByCustomerAndDate

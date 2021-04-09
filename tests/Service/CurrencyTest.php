@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CommissionTask\Tests\Service;
 
 use CommissionTask\Factory\Rate as RateFactory;
+use CommissionTask\Model\Currency as CurrencyModel;
 use PHPUnit\Framework\TestCase;
 
 use CommissionTask\Factory\Currency as CurrencyFactory;
@@ -20,6 +21,41 @@ class CurrencyTest extends TestCase
     protected CurrencyFactory $currencyFactoryMock;
     protected CurrencyService $currencyService;
     protected RateFactory $rateFactory;
+
+    /**
+     * @covers \CommissionTask\Service\Currency::getSupportedCurrenciesCodes
+     */
+    public function testGetSupportedCurrenciesCodes()
+    {
+       $supportedCurrencies = [
+           CurrencyModel::EUR,
+           CurrencyModel::USD,
+           CurrencyModel::JPY,
+       ];
+
+       $this->assertEquals($supportedCurrencies, CurrencyService::getSupportedCurrenciesCodes());
+    }
+
+    /**
+     * @covers \CommissionTask\Service\Currency::isSupportedCurrencyCode
+     *
+     * @dataProvider dataProviderForIsSupportedCurrencyCode
+     */
+    public function testIsSupportedCurrencyCode(string $currencyCode, bool $expectation)
+    {
+        $this->assertEquals($expectation, CurrencyService::isSupportedCurrencyCode($currencyCode));
+    }
+
+    /**
+     * @return array[]
+     */
+    public function dataProviderForIsSupportedCurrencyCode()
+    {
+        return [
+            'supported currency' => ['USD', true],
+            'unsupported currency' => ['UAH', false],
+        ];
+    }
 
     /**
      * @covers \CommissionTask\Service\Currency::convertCurrency

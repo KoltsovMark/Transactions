@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CommissionTask\Dto;
 
-class NewTransaction
+use CommissionTask\Contract\ArrayAccess;
+
+class NewTransaction implements ArrayAccess
 {
     private string $amount;
     private string $currencyCode;
@@ -63,12 +65,12 @@ class NewTransaction
 
     public function getTransactionType(): string
     {
-        return $this->TransactionType;
+        return $this->transactionType;
     }
 
     public function setTransactionType(string $transactionType): NewTransaction
     {
-        $this->TransactionType = $transactionType;
+        $this->transactionType = $transactionType;
 
         return $this;
     }
@@ -83,5 +85,10 @@ class NewTransaction
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return \get_object_vars($this);
     }
 }
