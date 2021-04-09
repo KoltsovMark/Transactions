@@ -18,6 +18,7 @@ use CommissionTask\Service\Currency as CurrencyService;
 use CommissionTask\Service\Math as MathService;
 use CommissionTask\Service\Rate as RateService;
 use CommissionTask\Service\Transaction as TransactionService;
+use CommissionTask\Service\TransactionOperation as TransactionOperationService;
 
 //@todo add DI autowire
 // Init Repositories
@@ -35,10 +36,11 @@ $rateFactory = new RateFactory();
 
 // Init Services
 $mathService = new MathService();
+$transactionService = new TransactionService($transactionRepository);
 $rateService = new RateService(new MathService(8), $rateRepository, $rateFactory);
 $currencyService = new CurrencyService($rateService, $currencyRepository, $currencyFactory);
-$commissionService = new CommissionService($currencyService, $transactionRepository);
-$transactionService = new TransactionService(
+$commissionService = new CommissionService($currencyService, $transactionService);
+$transactionOperationService = new TransactionOperationService(
     $commissionService,
     $transactionRepository,
     $transactionCommissionFactory,
@@ -63,7 +65,7 @@ if (file_exists($transactionsSource)) {
             if (count($raw) === 6) {
                 $newTransactionDto = $newTransactionFactory->createFromArray($raw);
 
-                $transactionService->processTransaction($newTransactionDto);
+                $transactionOperationService->processTransaction($newTransactionDto);
             }else {
                 throw new SourceOfTransactionsDoNotMatchFormatException();
             }
