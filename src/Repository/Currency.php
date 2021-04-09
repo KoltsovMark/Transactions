@@ -9,10 +9,33 @@ use CommissionTask\Model\Currency as CurrencyModel;
 
 class Currency implements RepositoryInterface
 {
+    protected static $instance;
+
     /**
      * @var CurrencyModel[]
      */
     private array $currencies = [];
+
+    private function __construct()
+    {
+    }
+
+    private function __clone()
+    {
+    }
+
+    private function __wakeup()
+    {
+    }
+
+    public static function getInstance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
 
     /**
      * @return CurrencyModel[]

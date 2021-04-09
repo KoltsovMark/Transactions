@@ -9,10 +9,33 @@ use CommissionTask\Model\Rate as RateModel;
 
 class Rate implements RepositoryInterface
 {
+    protected static $instance;
+
     /**
      * @var RateModel[]
      */
     private array $rates = [];
+
+    private function __construct()
+    {
+    }
+
+    private function __clone()
+    {
+    }
+
+    private function __wakeup()
+    {
+    }
+
+    public static function getInstance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
 
     /**
      * @return RateModel[]

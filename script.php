@@ -23,9 +23,9 @@ use CommissionTask\Validator\ProcessTransaction as ProcessTransactionValidator;
 
 //@todo add DI autowire
 // Init Repositories
-$currencyRepository = new CurrencyRepository();
-$rateRepository = new RateRepository();
-$transactionRepository = new TransactionRepository();
+$currencyRepository = CurrencyRepository::getInstance();
+$rateRepository = RateRepository::getInstance();
+$transactionRepository = TransactionRepository::getInstance();
 
 // Init Factories
 $transactionCommissionFactory = new TransactionCommissionFactory();
