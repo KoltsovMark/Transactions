@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace CommissionTask\Service;
 
-use Carbon\Carbon;
 use CommissionTask\Dto\TransactionCommission as TransactionCommissionDto;
 use CommissionTask\Exception\FunctionalInDevelopment as FunctionalInDevelopmentException;
-use CommissionTask\Repository\Transaction as TransactionRepository;
 use CommissionTask\Service\Currency as CurrencyService;
+use CommissionTask\Service\Transaction as TransactionService;
 
 class Commission
 {
@@ -53,20 +52,19 @@ class Commission
         ],
     ];
 
-    private TransactionRepository $transactionRepository;
     private CurrencyService $currencyService;
+    private TransactionService $transactionService;
 
     /**
      * Commission constructor.
      *
-     * @param Currency $currencyService
+     * @param Currency    $currencyService
+     * @param Transaction $transactionService
      */
-    public function __construct(
-        CurrencyService $currencyService,
-        TransactionRepository $transactionRepository
-    ) {
+    public function __construct(CurrencyService $currencyService, TransactionService $transactionService)
+    {
         $this->currencyService = $currencyService;
-        $this->transactionRepository = $transactionRepository;
+        $this->transactionService = $transactionService;
     }
 
     /**
@@ -257,24 +255,30 @@ class Commission
     }
 
     /**
-     * @throws \Exception
+     * @throws FunctionalInDevelopmentException
      */
     protected function isExceedCashOutNaturalFreeOfChargeTransactionsLimit(
         int $customerId,
         string $transactionDate
     ): bool {
-        $transactionDate = new Carbon($transactionDate);
-        $startOfWeek = (new Carbon($transactionDate))->startOfWeek();
-        $endOfWeek = (new Carbon($transactionDate))->endOfWeek();
+        if (
+            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['renewal']
+            === self::TYPE_RENEWAL_WEEKLY
+        ) {
+            $transactions = $this->transactionService->getWeeklyCashOutTransactionsByCustomerAndDate(
+                $customerId,
+                $transactionDate
+            );
+            $maxTransactions = self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['max_transactions'];
 
-        $transactions = $this->transactionRepository
-            ->getCashOutByCustomerIdAndTransactionDate($customerId, $startOfWeek, $endOfWeek)
-        ;
-
-        return count($transactions) >= self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['max_transactions'];
+            return count($transactions) >= $maxTransactions;
+        } else {
+            throw new FunctionalInDevelopmentException();
+        }
     }
 
     /**
+     * @throws FunctionalInDevelopmentException
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
@@ -284,37 +288,42 @@ class Commission
         int $customerId,
         string $transactionDate
     ): bool {
-        $transactionDate = new Carbon($transactionDate);
-        $startOfWeek = (new Carbon($transactionDate))->startOfWeek();
-        $endOfWeek = (new Carbon($transactionDate))->endOfWeek();
+        if (
+            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['renewal']
+            === self::TYPE_RENEWAL_WEEKLY
+        ) {
+            $transactions = $this->transactionService->getWeeklyCashOutTransactionsByCustomerAndDate(
+                $customerId,
+                $transactionDate
+            );
+            $transactionsAmount = $this->currencyService->getEmptyAmount(
+                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
+            );
 
-        $transactions = $this->transactionRepository
-            ->getCashOutByCustomerIdAndTransactionDate($customerId, $startOfWeek, $endOfWeek)
-        ;
-        $transactionsAmount = $this->currencyService->getEmptyAmount(
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
-        );
-
-        if (!empty($transactions)) {
-            foreach ($transactions as $transaction) {
-                $transactionsAmount = $this->currencyService->add(
-                    $transactionsAmount,
-                    self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
-                    $transaction->getAmount(),
-                    $transaction->getCurrency()->getCode()
-                );
+            if (!empty($transactions)) {
+                foreach ($transactions as $transaction) {
+                    $transactionsAmount = $this->currencyService->add(
+                        $transactionsAmount,
+                        self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                        $transaction->getAmount(),
+                        $transaction->getCurrency()->getCode()
+                    );
+                }
             }
-        }
 
-        return $this->currencyService->isGreaterThanOrEqual(
-            $transactionsAmount,
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['limit'],
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
-        );
+            return $this->currencyService->isGreaterThanOrEqual(
+                $transactionsAmount,
+                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['limit'],
+                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+            );
+        } else {
+            throw new FunctionalInDevelopmentException();
+        }
     }
 
     /**
+     * @throws FunctionalInDevelopmentException
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
@@ -324,47 +333,51 @@ class Commission
         int $customerId,
         string $transactionDate
     ): string {
-        $transactionsAmountInBaseCurrency = $this->currencyService->getEmptyAmount(
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
-        );
-
-        $transactionDate = new Carbon($transactionDate);
-        $startOfWeek = (new Carbon($transactionDate))->startOfWeek();
-        $endOfWeek = (new Carbon($transactionDate))->endOfWeek();
-
-        $transactions = $this->transactionRepository
-            ->getCashOutByCustomerIdAndTransactionDate($customerId, $startOfWeek, $endOfWeek)
-        ;
-
-        if (!empty($transactions)) {
-            foreach ($transactions as $transaction) {
-                $transactionsAmountInBaseCurrency = $this->currencyService->add(
-                    $transactionsAmountInBaseCurrency,
-                    self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
-                    $transaction->getAmount(),
-                    $transaction->getCurrency()->getCode()
-                );
-            }
-        }
-
-        $availableDiscount = $this->currencyService->minus(
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['limit'],
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
-            $transactionsAmountInBaseCurrency,
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
-        );
-
-        $isDiscountPositive = $this->currencyService->isPositive(
-            $availableDiscount,
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
-        );
-
-        if ($isDiscountPositive) {
-            return $availableDiscount;
-        } else {
-            return $this->currencyService->getEmptyAmount(
+        if (
+            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['renewal']
+            === self::TYPE_RENEWAL_WEEKLY
+        ) {
+            $transactionsAmountInBaseCurrency = $this->currencyService->getEmptyAmount(
                 self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
             );
+
+            $transactions = $this->transactionService->getWeeklyCashOutTransactionsByCustomerAndDate(
+                $customerId,
+                $transactionDate
+            );
+
+            if (!empty($transactions)) {
+                foreach ($transactions as $transaction) {
+                    $transactionsAmountInBaseCurrency = $this->currencyService->add(
+                        $transactionsAmountInBaseCurrency,
+                        self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                        $transaction->getAmount(),
+                        $transaction->getCurrency()->getCode()
+                    );
+                }
+            }
+
+            $availableDiscount = $this->currencyService->minus(
+                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['limit'],
+                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                $transactionsAmountInBaseCurrency,
+                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+            );
+
+            $isDiscountPositive = $this->currencyService->isPositive(
+                $availableDiscount,
+                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
+            );
+
+            if ($isDiscountPositive) {
+                return $availableDiscount;
+            } else {
+                return $this->currencyService->getEmptyAmount(
+                    self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
+                );
+            }
+        } else {
+            throw new FunctionalInDevelopmentException();
         }
     }
 }

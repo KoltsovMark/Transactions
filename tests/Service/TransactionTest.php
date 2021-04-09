@@ -4,175 +4,58 @@ declare(strict_types=1);
 
 namespace CommissionTask\Tests\Service;
 
-use CommissionTask\Factory\Currency as CurrencyFactory;
-use CommissionTask\Factory\Customer as CustomerFactory;
-use CommissionTask\Factory\NewTransaction as NewTransactionFactory;
-use CommissionTask\Factory\Transaction;
-use CommissionTask\Factory\Transaction as TransactionFactory;
-use CommissionTask\Factory\TransactionCommission;
-use CommissionTask\Factory\TransactionCommission as TransactionCommissionFactory;
+use Carbon\Carbon;
 use CommissionTask\Repository\Transaction as TransactionRepository;
-use CommissionTask\Service\Commission as CommissionService;
 use CommissionTask\Service\Transaction as TransactionService;
-use DateTime;
 use PHPUnit\Framework\TestCase;
 
 class TransactionTest extends TestCase
 {
     protected TransactionService $transactionService;
-    protected CommissionService $commissionServiceMock;
     protected TransactionRepository $transactionRepositoryMock;
-    protected TransactionCommissionFactory $transactionCommissionFactoryMock;
-    protected TransactionFactory $transactionFactoryMock;
-    protected CustomerFactory $customerFactoryMock;
-    protected CurrencyFactory $currencyFactoryMock;
 
     /**
-     * @covers \CommissionTask\Service\Transaction::processTransaction
-     * 
-     * @dataProvider dataProviderForProcessTransaction
+     * @covers \CommissionTask\Service\Transaction::getWeeklyCashOutTransactionsByCustomerAndDate
+     *
+     * @dataProvider dataProviderForGetWeeklyCashOutTransactionsByCustomerAndDate
      */
-    public function testProcessTransaction(
-        string $amount,
-        string $currencyCode,
+    public function testGetWeeklyCashOutTransactionsByCustomerAndDate(
         int $customerId,
-        string $customerType,
-        string $transactionType,
-        string $createdAt,
-        string $expectedMethod,
-        string $expectedCommission
+        string $transactionDate,
+        string $startOfWeek,
+        string $endOfWeek
     ) {
-        $newTransactionDto = (new NewTransactionFactory())->createFromArray([
-                $createdAt,
-                $customerId,
-                $customerType,
-                $transactionType,
-                $amount,
-                $currencyCode,
-            ]
-        );
-        $transactionCommissionDto = (new TransactionCommission())->createFromNewTransactionDto($newTransactionDto);
-        $transaction = (new TransactionFactory())->createFromNewTransactionDto($newTransactionDto);
-        $customer = (new CustomerFactory())->createFromNewTransactionDto($newTransactionDto);
-        $currency = (new CurrencyFactory())->create($newTransactionDto->getCurrencyCode());
-
-        $this->transactionCommissionFactoryMock
-            ->expects($this->once())
-            ->method('createFromNewTransactionDto')
-            ->with(...[$newTransactionDto])
-            ->willReturn($transactionCommissionDto)
-        ;
-
-        $this->transactionFactoryMock
-            ->expects($this->once())
-            ->method('createFromNewTransactionDto')
-            ->with(...[$newTransactionDto])
-            ->willReturn($transaction)
-        ;
-
-        $this->customerFactoryMock
-            ->expects($this->once())
-            ->method('createFromNewTransactionDto')
-            ->with(...[$newTransactionDto])
-            ->willReturn($customer)
-        ;
-
-        $this->currencyFactoryMock
-            ->expects($this->once())
-            ->method('create')
-            ->with(...[$currencyCode])
-            ->willReturn($currency)
-        ;
-
-        $this->commissionServiceMock
-            ->expects($this->once())
-            ->method($expectedMethod)
-            ->with($transactionCommissionDto)
-            ->willReturn($expectedCommission)
-        ;
-
         $this->transactionRepositoryMock
             ->expects($this->once())
-            ->method('add')
-            ->with($transaction)
+            ->method('getCashOutByCustomerIdAndTransactionDate')
+            ->with(...[$customerId, (new Carbon($startOfWeek))->startOfDay(), (new Carbon($endOfWeek))->endOfDay()])
         ;
 
-        $newTransaction = $this->transactionService->processTransaction($newTransactionDto);
-
-        $this->assertSame($amount, $newTransaction->getAmount());
-        $this->assertSame($expectedCommission, $newTransaction->getCommission());
-        $this->assertEquals(new DateTime($createdAt), $newTransaction->getCreatedAt());
-        $this->assertSame($currency, $newTransaction->getCurrency());
-        $this->assertSame($customer, $newTransaction->getCustomer());
-        $this->assertSame($transactionType, $newTransaction->getType());
+        $this->transactionService->getWeeklyCashOutTransactionsByCustomerAndDate(
+            $customerId,
+            $transactionDate
+        );
     }
 
     /**
      * @return array[]
      */
-    public function dataProviderForProcessTransaction()
+    public function dataProviderForGetWeeklyCashOutTransactionsByCustomerAndDate()
     {
         return [
-            'new cash in transaction of natural customer' => [
-                '15.23',
-                'EUR',
-                2,
-                'natural',
-                'cash_in',
-                '2017-10-21',
-                'calculateCashInCommission',
-                '10.00'
-            ],
-            'new cash in transaction of legal customer' => [
-                '15.23',
-                'EUR',
-                2,
-                'legal',
-                'cash_in',
-                '2017-10-21',
-                'calculateCashInCommission',
-                '10.00'
-            ],
-            'new cash out transaction of natural customer' => [
-                '15.23',
-                'EUR',
-                2,
-                'natural',
-                'cash_out',
-                '2017-10-21',
-                'calculateCashOutNaturalCommission',
-                '10.00'
-            ],
-            'new cash out transaction of legal customer' => [
-                '15.23',
-                'EUR',
-                2,
-                'legal',
-                'cash_out',
-                '2017-10-21',
-                'calculateCashOutLegalCommission',
-                '10.00'
-            ],
+            'transaction in start of week' => [5, '2021-03-01', '2021-03-01', '2021-03-07'],
+            'transaction in end of week' => [5, '2021-04-11', '2021-04-05', '2021-04-11'],
+            'transaction in middle of week' => [5, '2021-04-03', '2021-03-29', '2021-04-04'],
         ];
     }
-    
+
     protected function setUp(): void
     {
         parent::setUp(); // TODO: Change the autogenerated stub
 
         $this->transactionRepositoryMock = $this->createMock(TransactionRepository::class);
-        $this->commissionServiceMock = $this->createMock(CommissionService::class);
-        $this->transactionCommissionFactoryMock = $this->createMock(TransactionCommissionFactory::class);
-        $this->transactionFactoryMock = $this->createMock(TransactionFactory::class);
-        $this->customerFactoryMock = $this->createMock(CustomerFactory::class);
-        $this->currencyFactoryMock = $this->createMock(CurrencyFactory::class);
         $this->transactionService = new TransactionService(
-            $this->commissionServiceMock,
-            $this->transactionRepositoryMock,
-            $this->transactionCommissionFactoryMock,
-            $this->transactionFactoryMock,
-            $this->customerFactoryMock,
-            $this->currencyFactoryMock
+            $this->transactionRepositoryMock
         );
     }
 }
