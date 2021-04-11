@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace CommissionTask\Tests\Service;
 
-use CommissionTask\Factory\Rate as RateFactory;
-use CommissionTask\Model\Currency as CurrencyModel;
+use CommissionTask\Factory\Currency\Currency as CurrencyFactory;
+use CommissionTask\Factory\Rate\Rate as RateFactory;
+use CommissionTask\Model\Currency\Currency as CurrencyModel;
+use CommissionTask\Repository\Currency\Currency as CurrencyRepository;
+use CommissionTask\Service\Currency\Currency as CurrencyService;
+use CommissionTask\Service\Rate\Rate as RateService;
 use PHPUnit\Framework\TestCase;
-
-use CommissionTask\Factory\Currency as CurrencyFactory;
-use CommissionTask\Repository\Currency as CurrencyRepository;
-use CommissionTask\Service\Rate as RateService;
-use CommissionTask\Service\Currency as CurrencyService;
 
 //@todo add tests on exceptions
 class CurrencyTest extends TestCase

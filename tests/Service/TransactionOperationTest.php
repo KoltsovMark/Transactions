@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace CommissionTask\Tests\Service;
 
-use CommissionTask\Factory\Currency as CurrencyFactory;
-use CommissionTask\Factory\Customer as CustomerFactory;
-use CommissionTask\Factory\NewTransaction as NewTransactionFactory;
-use CommissionTask\Factory\Transaction as TransactionFactory;
-use CommissionTask\Factory\TransactionCommission;
-use CommissionTask\Factory\TransactionCommission as TransactionCommissionFactory;
-use CommissionTask\Repository\Transaction as TransactionRepository;
-use CommissionTask\Service\Commission as CommissionService;
-use CommissionTask\Service\TransactionOperation as TransactionOperationService;
-use PHPUnit\Framework\TestCase;
+use CommissionTask\Factory\Commission\TransactionCommission as TransactionCommissionFactory;
+use CommissionTask\Factory\Currency\Currency as CurrencyFactory;
+use CommissionTask\Factory\Customer\Customer as CustomerFactory;
+use CommissionTask\Factory\Transaction\NewTransaction as NewTransactionFactory;
+use CommissionTask\Factory\Transaction\Transaction as TransactionFactory;
+use CommissionTask\Repository\Transaction\Transaction as TransactionRepository;
+use CommissionTask\Service\Commission\Commission as CommissionService;
+use CommissionTask\Service\Transaction\TransactionOperation as TransactionOperationService;
 use DateTime;
+use PHPUnit\Framework\TestCase;
 
 class TransactionOperationTest extends TestCase
 {
@@ -50,7 +49,7 @@ class TransactionOperationTest extends TestCase
                 $currencyCode,
             ]
         );
-        $transactionCommissionDto = (new TransactionCommission())->createFromNewTransactionDto($newTransactionDto);
+        $transactionCommissionDto = (new TransactionCommissionFactory())->createFromNewTransactionDto($newTransactionDto);
         $transaction = (new TransactionFactory())->createFromNewTransactionDto($newTransactionDto);
         $customer = (new CustomerFactory())->createFromNewTransactionDto($newTransactionDto);
         $currency = (new CurrencyFactory())->create($newTransactionDto->getCurrencyCode());

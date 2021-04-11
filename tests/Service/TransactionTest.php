@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CommissionTask\Tests\Service;
 
 use Carbon\Carbon;
-use CommissionTask\Repository\Transaction as TransactionRepository;
-use CommissionTask\Service\Transaction as TransactionService;
+use CommissionTask\Repository\Transaction\Transaction as TransactionRepository;
+use CommissionTask\Service\Transaction\Transaction as TransactionService;
 use PHPUnit\Framework\TestCase;
 
 class TransactionTest extends TestCase

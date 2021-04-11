@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace CommissionTask\Tests\Service;
 
-use CommissionTask\Exception\RateDoNotExist as RateDoNotExistException;
-use CommissionTask\Factory\Rate as RateFactory;
-use CommissionTask\Repository\Rate as RateRepository;
+use CommissionTask\Exception\Rate\RateDoNotExist as RateDoNotExistException;
+use CommissionTask\Factory\Rate\Rate as RateFactory;
+use CommissionTask\Repository\Rate\Rate as RateRepository;
 use CommissionTask\Service\Math as MathService;
-use CommissionTask\Service\Rate as RateService;
+use CommissionTask\Service\Rate\Rate as RateService;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 

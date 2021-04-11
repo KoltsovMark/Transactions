@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CommissionTask\Tests\Service;
 
-use CommissionTask\Factory\TransactionCommission as TransactionCommissionFactory;
-use CommissionTask\Service\Commission as CommissionService;
-use CommissionTask\Service\Currency as CurrencyService;
-use CommissionTask\Service\Transaction as TransactionService;
+use CommissionTask\Factory\Commission\TransactionCommission as TransactionCommissionFactory;
+use CommissionTask\Service\Commission\Commission as CommissionService;
+use CommissionTask\Service\Currency\Currency as CurrencyService;
+use CommissionTask\Service\Transaction\Transaction as TransactionService;
 use PHPUnit\Framework\TestCase;
 
 class CommissionTest extends TestCase

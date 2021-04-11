@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CommissionTask\Tests\Service;
 
-use CommissionTask\Service\Customer as CustomerService;
+use CommissionTask\Service\Customer\Customer as CustomerService;
 use PHPUnit\Framework\TestCase;
 
 class CustomerTest extends TestCase

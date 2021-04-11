@@ -2,24 +2,24 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-use CommissionTask\Exception\SourceOfTransactionsDoNotExist as SourceOfTransactionsDoNotExistException;
-use CommissionTask\Exception\SourceOfTransactionsDoNotMatchFormat as SourceOfTransactionsDoNotMatchFormatException;
-use CommissionTask\Factory\Currency as CurrencyFactory;
-use CommissionTask\Factory\Customer as CustomerFactory;
-use CommissionTask\Factory\NewTransaction as NewTransactionFactory;
-use CommissionTask\Factory\Rate as RateFactory;
-use CommissionTask\Factory\Transaction as TransactionFactory;
-use CommissionTask\Factory\TransactionCommission as TransactionCommissionFactory;
-use CommissionTask\Repository\Currency as CurrencyRepository;
-use CommissionTask\Repository\Rate as RateRepository;
-use CommissionTask\Repository\Transaction as TransactionRepository;
-use CommissionTask\Service\Commission as CommissionService;
-use CommissionTask\Service\Currency as CurrencyService;
+use CommissionTask\Exception\Transaction\SourceOfTransactionsDoNotExist as SourceOfTransactionsDoNotExistException;
+use CommissionTask\Exception\Transaction\SourceOfTransactionsDoNotMatchFormat as SourceOfTransactionsDoNotMatchFormatException;
+use CommissionTask\Factory\Currency\Currency as CurrencyFactory;
+use CommissionTask\Factory\Customer\Customer as CustomerFactory;
+use CommissionTask\Factory\Transaction\NewTransaction as NewTransactionFactory;
+use CommissionTask\Factory\Rate\Rate as RateFactory;
+use CommissionTask\Factory\Transaction\Transaction as TransactionFactory;
+use CommissionTask\Factory\Commission\TransactionCommission as TransactionCommissionFactory;
+use CommissionTask\Repository\Currency\Currency as CurrencyRepository;
+use CommissionTask\Repository\Rate\Rate as RateRepository;
+use CommissionTask\Repository\Transaction\Transaction as TransactionRepository;
+use CommissionTask\Service\Commission\Commission as CommissionService;
+use CommissionTask\Service\Currency\Currency as CurrencyService;
 use CommissionTask\Service\Math as MathService;
-use CommissionTask\Service\Rate as RateService;
-use CommissionTask\Service\Transaction as TransactionService;
-use CommissionTask\Service\TransactionOperation as TransactionOperationService;
-use CommissionTask\Validator\ProcessTransaction as ProcessTransactionValidator;
+use CommissionTask\Service\Rate\Rate as RateService;
+use CommissionTask\Service\Transaction\Transaction as TransactionService;
+use CommissionTask\Service\Transaction\TransactionOperation as TransactionOperationService;
+use CommissionTask\Validator\Transaction\ProcessTransaction as ProcessTransactionValidator;
 
 //@todo add DI autowire
 // Init Repositories
