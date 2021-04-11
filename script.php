@@ -4,12 +4,14 @@ require __DIR__ . '/vendor/autoload.php';
 
 use CommissionTask\Exception\Transaction\SourceOfTransactionsDoNotExist as SourceOfTransactionsDoNotExistException;
 use CommissionTask\Exception\Transaction\SourceOfTransactionsDoNotMatchFormat as SourceOfTransactionsDoNotMatchFormatException;
+use CommissionTask\Factory\Commission\CashInCommission as CashInCommissionFactory;
+use CommissionTask\Factory\Commission\CashOutLegalCommission as CashOutLegalCommissionFactory;
+use CommissionTask\Factory\Commission\CashOutNaturalCommission as CashOutNaturalCommissionFactory;
 use CommissionTask\Factory\Currency\Currency as CurrencyFactory;
 use CommissionTask\Factory\Customer\Customer as CustomerFactory;
-use CommissionTask\Factory\Transaction\NewTransaction as NewTransactionFactory;
 use CommissionTask\Factory\Rate\Rate as RateFactory;
+use CommissionTask\Factory\Transaction\NewTransaction as NewTransactionFactory;
 use CommissionTask\Factory\Transaction\Transaction as TransactionFactory;
-use CommissionTask\Factory\Commission\TransactionCommission as TransactionCommissionFactory;
 use CommissionTask\Repository\Currency\Currency as CurrencyRepository;
 use CommissionTask\Repository\Rate\Rate as RateRepository;
 use CommissionTask\Repository\Transaction\Transaction as TransactionRepository;
@@ -28,12 +30,14 @@ $rateRepository = RateRepository::getInstance();
 $transactionRepository = TransactionRepository::getInstance();
 
 // Init Factories
-$transactionCommissionFactory = new TransactionCommissionFactory();
 $newTransactionFactory = new NewTransactionFactory();
 $transactionFactory = new TransactionFactory();
 $customerFactory = new CustomerFactory();
 $currencyFactory = new CurrencyFactory();
 $rateFactory = new RateFactory();
+$cashInCommissionFactory = new CashInCommissionFactory();
+$cashOutLegalCommissionFactory = new CashOutLegalCommissionFactory();
+$cashOutNaturalCommissionFactory = new CashOutNaturalCommissionFactory();
 
 // Init Services
 $mathService = new MathService();
@@ -44,10 +48,12 @@ $commissionService = new CommissionService($currencyService, $transactionService
 $transactionOperationService = new TransactionOperationService(
     $commissionService,
     $transactionRepository,
-    $transactionCommissionFactory,
     $transactionFactory,
     $customerFactory,
-    $currencyFactory
+    $currencyFactory,
+    $cashInCommissionFactory,
+    $cashOutLegalCommissionFactory,
+    $cashOutNaturalCommissionFactory
 );
 
 //Init Validators

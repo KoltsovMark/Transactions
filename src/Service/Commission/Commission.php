@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CommissionTask\Service\Commission;
 
-use CommissionTask\Dto\Commission\TransactionCommission as TransactionCommissionDto;
+use CommissionTask\Dto\Commission\CashInCommission as CashInCommissionDto;
+use CommissionTask\Dto\Commission\CashOutLegalCommission as CashOutLegalCommissionDto;
+use CommissionTask\Dto\Commission\CashOutNaturalCommission as CashOutNaturalCommissionDto;
 use CommissionTask\Exception\FunctionalInDevelopment as FunctionalInDevelopmentException;
 use CommissionTask\Service\Currency\Currency as CurrencyService;
 use CommissionTask\Service\Transaction\Transaction as TransactionService;
@@ -57,9 +59,6 @@ class Commission
 
     /**
      * Commission constructor.
-     *
-     * @param Currency    $currencyService
-     * @param Transaction $transactionService
      */
     public function __construct(CurrencyService $currencyService, TransactionService $transactionService)
     {
@@ -70,32 +69,28 @@ class Commission
     /**
      * @throws FunctionalInDevelopmentException
      */
-    public function calculateCashInCommission(TransactionCommissionDto $transactionCommissionDto): string
+    public function calculateCashInCommission(CashInCommissionDto $cashInCommissionDto): string
     {
-        // @todo add validation
-
         if (self::CONFIGURATION['cash_in']['fee']['type'] === self::TYPE_PERCENTAGE) {
             $fee = $this->calculateFeePercentage(
-                $transactionCommissionDto->getAmount(),
+                $cashInCommissionDto->getAmount(),
                 self::CONFIGURATION['cash_in']['fee']['value'],
-                $transactionCommissionDto->getCurrencyCode()
+                $cashInCommissionDto->getCurrencyCode()
             );
 
-            return $this->applyCashInMaxLimitCheck($fee, $transactionCommissionDto->getCurrencyCode());
+            return $this->applyCashInMaxLimitCheck($fee, $cashInCommissionDto->getCurrencyCode());
         }
 
         throw new FunctionalInDevelopmentException();
     }
 
-    public function calculateCashOutNaturalCommission(TransactionCommissionDto $transactionCommissionDto): string
+    public function calculateCashOutNaturalCommission(CashOutNaturalCommissionDto $cashOutNaturalCommissionDto): string
     {
-        // @todo add validation
-
         return $this->applyCashOutNaturalFreeOfChargeCheck(
-            $transactionCommissionDto->getAmount(),
-            $transactionCommissionDto->getCurrencyCode(),
-            $transactionCommissionDto->getCreatedAt(),
-            $transactionCommissionDto->getCustomerId()
+            $cashOutNaturalCommissionDto->getAmount(),
+            $cashOutNaturalCommissionDto->getCurrencyCode(),
+            $cashOutNaturalCommissionDto->getCreatedAt(),
+            $cashOutNaturalCommissionDto->getCustomerId()
         );
     }
 
@@ -103,18 +98,16 @@ class Commission
      * @throws FunctionalInDevelopmentException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
      */
-    public function calculateCashOutLegalCommission(TransactionCommissionDto $transactionCommissionDto): string
+    public function calculateCashOutLegalCommission(CashOutLegalCommissionDto $cashOutLegalCommissionDto): string
     {
-        // @todo add validation
-
         if (self::CONFIGURATION['cash_out']['legal_person']['fee']['type'] === self::TYPE_PERCENTAGE) {
             $fee = $this->calculateFeePercentage(
-                $transactionCommissionDto->getAmount(),
+                $cashOutLegalCommissionDto->getAmount(),
                 self::CONFIGURATION['cash_out']['legal_person']['fee']['value'],
-                $transactionCommissionDto->getCurrencyCode()
+                $cashOutLegalCommissionDto->getCurrencyCode()
             );
 
-            return $this->applyCashOutLegalMinLimitCheck($fee, $transactionCommissionDto->getCurrencyCode());
+            return $this->applyCashOutLegalMinLimitCheck($fee, $cashOutLegalCommissionDto->getCurrencyCode());
         }
 
         throw new FunctionalInDevelopmentException();
@@ -139,7 +132,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExist
+     * @throws \CommissionTask\Exception\Rate\RateDoNotExist
      */
     protected function applyCashInMaxLimitCheck(string $amount, string $currencyCode): string
     {
@@ -172,7 +165,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExist
+     * @throws \CommissionTask\Exception\Rate\RateDoNotExist
      */
     protected function applyCashOutLegalMinLimitCheck(string $amount, string $currencyCode): string
     {
@@ -204,7 +197,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExist
+     * @throws \CommissionTask\Exception\Rate\RateDoNotExist
      */
     protected function applyCashOutNaturalFreeOfChargeCheck(
         string $transactionAmount,
@@ -282,7 +275,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExist
+     * @throws \CommissionTask\Exception\Rate\RateDoNotExist
      */
     protected function isExceedCashOutNaturalFreeOfChargeTransactionsAmountLimit(
         int $customerId,
@@ -327,7 +320,7 @@ class Commission
      * @throws \Brick\Money\Exception\CurrencyConversionException
      * @throws \Brick\Money\Exception\MoneyMismatchException
      * @throws \Brick\Money\Exception\UnknownCurrencyException
-     * @throws \CommissionTask\Exception\RateDoNotExist
+     * @throws \CommissionTask\Exception\Rate\RateDoNotExist
      */
     protected function calculateCashOutNaturalFreeOfChargeAmountReminderInBaseCurrency(
         int $customerId,

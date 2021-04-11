@@ -6,7 +6,9 @@ namespace CommissionTask\Service\Transaction;
 
 use CommissionTask\Dto\Transaction\NewTransaction as NewTransactionDto;
 use CommissionTask\Exception\FunctionalInDevelopment as FunctionalInDevelopmentException;
-use CommissionTask\Factory\Commission\TransactionCommission as TransactionCommissionFactory;
+use CommissionTask\Factory\Commission\CashInCommission as CashInCommissionFactory;
+use CommissionTask\Factory\Commission\CashOutLegalCommission as CashOutLegalCommissionFactory;
+use CommissionTask\Factory\Commission\CashOutNaturalCommission as CashOutNaturalCommissionFactory;
 use CommissionTask\Factory\Currency\Currency as CurrencyFactory;
 use CommissionTask\Factory\Customer\Customer as CustomerFactory;
 use CommissionTask\Factory\Transaction\Transaction as TransactionFactory;
@@ -18,10 +20,11 @@ class TransactionOperation
 {
     private TransactionRepository $transactionRepository;
     private CommissionService $commissionService;
-    private TransactionCommissionFactory $transactionCommissionFactory;
     private TransactionFactory $transactionFactory;
     private CustomerFactory $customerFactory;
     private CurrencyFactory $currencyFactory;
+    private CashInCommissionFactory $cashInCommissionFactory;
+    private CashOutLegalCommissionFactory $cashOutLegalCommissionFactory;
 
     /**
      * Transaction constructor.
@@ -29,17 +32,21 @@ class TransactionOperation
     public function __construct(
         CommissionService $commissionService,
         TransactionRepository $transactionRepository,
-        TransactionCommissionFactory $transactionCommissionFactory,
         TransactionFactory $transactionFactory,
         CustomerFactory $customerFactory,
-        CurrencyFactory $currencyFactory
+        CurrencyFactory $currencyFactory,
+        CashInCommissionFactory $cashInCommissionFactory,
+        CashOutLegalCommissionFactory $cashOutLegalCommissionFactory,
+        CashOutNaturalCommissionFactory $cashOutNaturalCommissionFactory
     ) {
         $this->transactionRepository = $transactionRepository;
         $this->commissionService = $commissionService;
-        $this->transactionCommissionFactory = $transactionCommissionFactory;
         $this->transactionFactory = $transactionFactory;
         $this->customerFactory = $customerFactory;
         $this->currencyFactory = $currencyFactory;
+        $this->cashInCommissionFactory = $cashInCommissionFactory;
+        $this->cashOutLegalCommissionFactory = $cashOutLegalCommissionFactory;
+        $this->cashOutNaturalCommissionFactory = $cashOutNaturalCommissionFactory;
     }
 
     /**
@@ -48,7 +55,6 @@ class TransactionOperation
      */
     public function processTransaction(NewTransactionDto $newTransactionDto): TransactionModel
     {
-        $transactionCommissionDto = $this->transactionCommissionFactory->createFromNewTransactionDto($newTransactionDto);
         $transaction = $this->transactionFactory->createFromNewTransactionDto($newTransactionDto);
         $customer = $this->customerFactory->createFromNewTransactionDto($newTransactionDto);
         $currency = $this->currencyFactory->create($newTransactionDto->getCurrencyCode());
@@ -57,12 +63,15 @@ class TransactionOperation
         $transaction->setCurrency($currency);
 
         if ($transaction->isCashIn()) {
-            $commission = $this->commissionService->calculateCashInCommission($transactionCommissionDto);
+            $commissionDto = $this->cashInCommissionFactory->createFromNewTransactionDto($newTransactionDto);
+            $commission = $this->commissionService->calculateCashInCommission($commissionDto);
         } elseif ($transaction->isCashOut()) {
             if ($customer->isLegalPerson()) {
-                $commission = $this->commissionService->calculateCashOutLegalCommission($transactionCommissionDto);
+                $commissionDto = $this->cashOutLegalCommissionFactory->createFromNewTransactionDto($newTransactionDto);
+                $commission = $this->commissionService->calculateCashOutLegalCommission($commissionDto);
             } elseif ($customer->isNaturalPerson()) {
-                $commission = $this->commissionService->calculateCashOutNaturalCommission($transactionCommissionDto);
+                $commissionDto = $this->cashOutNaturalCommissionFactory->createFromNewTransactionDto($newTransactionDto);
+                $commission = $this->commissionService->calculateCashOutNaturalCommission($commissionDto);
             } else {
                 throw new FunctionalInDevelopmentException();
             }

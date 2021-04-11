@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CommissionTask\Tests\Service;
 
-use CommissionTask\Factory\Commission\TransactionCommission as TransactionCommissionFactory;
+use CommissionTask\Factory\Commission\CashInCommission as CashInCommissionFactory;
+use CommissionTask\Factory\Commission\CashOutLegalCommission as CashOutLegalCommissionFactory;
+use CommissionTask\Factory\Commission\CashOutNaturalCommission as CashOutNaturalCommissionFactory;
 use CommissionTask\Service\Commission\Commission as CommissionService;
 use CommissionTask\Service\Currency\Currency as CurrencyService;
 use CommissionTask\Service\Transaction\Transaction as TransactionService;
@@ -20,7 +22,9 @@ class CommissionTest extends TestCase
     protected CommissionService $commissionService;
     protected CurrencyService $currencyServiceMock;
     protected TransactionService $transactionServiceMock;
-    protected TransactionCommissionFactory $transactionCommissionFactory;
+    protected CashInCommissionFactory $cashInCommissionFactory;
+    protected CashOutLegalCommissionFactory $cashOutLegalCommissionFactory;
+    protected CashOutNaturalCommissionFactory $cashOutNaturalCommissionFactory;
 
     /**
      * @covers \CommissionTask\Service\Commission::calculateCashInCommission
@@ -29,7 +33,7 @@ class CommissionTest extends TestCase
      */
     public function testCalculateCashInCommission(string $amount, string $currencyCode, string $expectation)
     {
-        $transactionCommissionDto = $this->transactionCommissionFactory
+        $cashInCommissionDto = $this->cashInCommissionFactory
             ->createEmpty()
             ->setAmount($amount)
             ->setCurrencyCode($currencyCode)
@@ -56,7 +60,7 @@ class CommissionTest extends TestCase
 
         $this->assertEquals(
             $expectation,
-            $commissionServicePartialMock->calculateCashInCommission($transactionCommissionDto)
+            $commissionServicePartialMock->calculateCashInCommission($cashInCommissionDto)
         );
     }
 
@@ -83,7 +87,7 @@ class CommissionTest extends TestCase
         int $customerId,
         string $expectation
     ) {
-        $transactionCommissionDto = $this->transactionCommissionFactory
+        $cashOutNaturalCommissionDto = $this->cashOutNaturalCommissionFactory
             ->createEmpty()
             ->setAmount($transactionAmount)
             ->setCurrencyCode($transactionCurrency)
@@ -105,7 +109,7 @@ class CommissionTest extends TestCase
 
        $this->assertEquals(
            $expectation,
-           $commissionServicePartialMock->calculateCashOutNaturalCommission($transactionCommissionDto)
+           $commissionServicePartialMock->calculateCashOutNaturalCommission($cashOutNaturalCommissionDto)
        );
     }
 
@@ -130,7 +134,7 @@ class CommissionTest extends TestCase
         string $transactionCurrency,
         string $expectation
     ) {
-        $transactionCommissionDto = $this->transactionCommissionFactory
+        $cashOutLegalCommissionDto = $this->cashOutLegalCommissionFactory
             ->createEmpty()
             ->setAmount($transactionAmount)
             ->setCurrencyCode($transactionCurrency)
@@ -157,7 +161,7 @@ class CommissionTest extends TestCase
 
         $this->assertEquals(
             $expectation,
-            $commissionServicePartialMock->calculateCashOutLegalCommission($transactionCommissionDto)
+            $commissionServicePartialMock->calculateCashOutLegalCommission($cashOutLegalCommissionDto)
         );
     }
 
@@ -182,6 +186,8 @@ class CommissionTest extends TestCase
             $this->currencyServiceMock,
             $this->transactionServiceMock
         );
-        $this->transactionCommissionFactory = new TransactionCommissionFactory();
+        $this->cashInCommissionFactory = new CashInCommissionFactory();
+        $this->cashOutLegalCommissionFactory = new CashOutLegalCommissionFactory();
+        $this->cashOutNaturalCommissionFactory = new CashOutNaturalCommissionFactory();
     }
 }

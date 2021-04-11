@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CommissionTask\Tests\Service;
 
-use CommissionTask\Factory\Commission\TransactionCommission as TransactionCommissionFactory;
+use CommissionTask\Factory\Commission\CashInCommission as CashInCommissionFactory;
+use CommissionTask\Factory\Commission\CashOutLegalCommission as CashOutLegalCommissionFactory;
+use CommissionTask\Factory\Commission\CashOutNaturalCommission as CashOutNaturalCommissionFactory;
 use CommissionTask\Factory\Currency\Currency as CurrencyFactory;
 use CommissionTask\Factory\Customer\Customer as CustomerFactory;
 use CommissionTask\Factory\Transaction\NewTransaction as NewTransactionFactory;
@@ -20,10 +22,12 @@ class TransactionOperationTest extends TestCase
     protected TransactionOperationService $transactionOperationService;
     protected CommissionService $commissionServiceMock;
     protected TransactionRepository $transactionRepositoryMock;
-    protected TransactionCommissionFactory $transactionCommissionFactoryMock;
     protected TransactionFactory $transactionFactoryMock;
     protected CustomerFactory $customerFactoryMock;
     protected CurrencyFactory $currencyFactoryMock;
+    protected CashInCommissionFactory $cashInCommissionFactoryMock;
+    protected CashOutLegalCommissionFactory $cashOutLegalCommissionFactoryMock;
+    protected CashOutNaturalCommissionFactory $cashOutNaturalCommissionFactoryMock;
 
     /**
      * @covers \CommissionTask\Service\Transaction::processTransaction
@@ -49,12 +53,24 @@ class TransactionOperationTest extends TestCase
                 $currencyCode,
             ]
         );
-        $transactionCommissionDto = (new TransactionCommissionFactory())->createFromNewTransactionDto($newTransactionDto);
+
+        if ($expectedMethod === 'calculateCashInCommission') {
+            $transactionCommissionDto = (new CashInCommissionFactory())->createFromNewTransactionDto($newTransactionDto);
+            $commissionFactoryMock = $this->cashInCommissionFactoryMock;
+        } elseif ($expectedMethod === 'calculateCashOutLegalCommission') {
+            $transactionCommissionDto = (new CashOutLegalCommissionFactory())->createFromNewTransactionDto($newTransactionDto);
+            $commissionFactoryMock = $this->cashOutLegalCommissionFactoryMock;
+        } else {
+            $transactionCommissionDto = (new CashOutNaturalCommissionFactory())->createFromNewTransactionDto($newTransactionDto);
+            $commissionFactoryMock = $this->cashOutNaturalCommissionFactoryMock;
+        }
+
+
         $transaction = (new TransactionFactory())->createFromNewTransactionDto($newTransactionDto);
         $customer = (new CustomerFactory())->createFromNewTransactionDto($newTransactionDto);
         $currency = (new CurrencyFactory())->create($newTransactionDto->getCurrencyCode());
 
-        $this->transactionCommissionFactoryMock
+        $commissionFactoryMock
             ->expects($this->once())
             ->method('createFromNewTransactionDto')
             ->with(...[$newTransactionDto])
@@ -160,17 +176,21 @@ class TransactionOperationTest extends TestCase
 
         $this->transactionRepositoryMock = $this->createMock(TransactionRepository::class);
         $this->commissionServiceMock = $this->createMock(CommissionService::class);
-        $this->transactionCommissionFactoryMock = $this->createMock(TransactionCommissionFactory::class);
         $this->transactionFactoryMock = $this->createMock(TransactionFactory::class);
         $this->customerFactoryMock = $this->createMock(CustomerFactory::class);
         $this->currencyFactoryMock = $this->createMock(CurrencyFactory::class);
+        $this->cashInCommissionFactoryMock = $this->createMock(CashInCommissionFactory::class);
+        $this->cashOutLegalCommissionFactoryMock = $this->createMock(CashOutLegalCommissionFactory::class);
+        $this->cashOutNaturalCommissionFactoryMock = $this->createMock(CashOutNaturalCommissionFactory::class);
         $this->transactionOperationService = new TransactionOperationService(
             $this->commissionServiceMock,
             $this->transactionRepositoryMock,
-            $this->transactionCommissionFactoryMock,
             $this->transactionFactoryMock,
             $this->customerFactoryMock,
-            $this->currencyFactoryMock
+            $this->currencyFactoryMock,
+            $this->cashInCommissionFactoryMock,
+            $this->cashOutLegalCommissionFactoryMock,
+            $this->cashOutNaturalCommissionFactoryMock
         );
     }
 }
