@@ -20,4 +20,5 @@ return PhpCsFixer\Config::create()
     ->setFinder($finder)
     ->setUsingCache(false)
     ->setRiskyAllowed(true)
+    ->setLineEnding(PHP_EOL)
 ;
