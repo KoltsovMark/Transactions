@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CommissionTask\Validator;
 
-use CommissionTask\Contract\DataValidator;
+use CommissionTask\Contract\DataValidator as DataValidatorInterface;
 
-abstract class AbstractValidator implements DataValidator
+abstract class AbstractValidator implements DataValidatorInterface
 {
     private const DEFAULT_MESSAGE = 'Provided value is not valid at %s';
 

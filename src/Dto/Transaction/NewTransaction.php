@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CommissionTask\Dto\Transaction;
 
-use CommissionTask\Contract\ArrayAccess;
+use CommissionTask\Contract\ArrayAccess as ArrayAccessInterface;
 
-class NewTransaction implements ArrayAccess
+class NewTransaction implements ArrayAccessInterface
 {
     private string $amount;
     private string $currencyCode;
