@@ -1,12 +1,20 @@
-#Requirements
-    PHP 7.4
-    Composer v2
+## Requirements
+```
+PHP 7.4
+Composer v2
+```
 
-#Installation
-    composer install
+## Installation
+```
+composer install
+```
 
-#Run main script
-    php script.php input.csv
+## Run main script
+```
+php script.php input.csv
+```
 
-#Run tests
-    composer run test
+## Run tests
+```
+composer run test
+```
