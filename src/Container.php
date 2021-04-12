@@ -11,6 +11,7 @@ use CommissionTask\Factory\Commission\CashOutLegalCommission as CashOutLegalComm
 use CommissionTask\Factory\Commission\CashOutNaturalCommission as CashOutNaturalCommissionFactory;
 use CommissionTask\Factory\Currency\Currency as CurrencyFactory;
 use CommissionTask\Factory\Customer\Customer as CustomerFactory;
+use CommissionTask\Factory\FileSystem\FileReader as FileReaderFactory;
 use CommissionTask\Factory\Rate\Rate as RateFactory;
 use CommissionTask\Factory\Transaction\NewTransaction as NewTransactionFactory;
 use CommissionTask\Factory\Transaction\Transaction as TransactionFactory;
@@ -20,6 +21,7 @@ use CommissionTask\Repository\Transaction\Transaction as TransactionRepository;
 use CommissionTask\Service\Commission\Commission as CommissionService;
 use CommissionTask\Service\Configuration as ConfigurationService;
 use CommissionTask\Service\Currency\Currency as CurrencyService;
+use CommissionTask\Service\FileSystem\CsvReader as CsvReaderService;
 use CommissionTask\Service\Math as MathService;
 use CommissionTask\Service\Rate\Rate as RateService;
 use CommissionTask\Service\Transaction\Transaction as TransactionService;
@@ -84,10 +86,16 @@ class Container implements ContainerInterface
             $this->get(CashOutLegalCommissionFactory::class),
             $this->get(CashOutNaturalCommissionFactory::class)
         );
+        $this->application[CsvReaderService::class] = new CsvReaderService();
 
         // Init Validators
         $this->application[ProcessTransactionValidator::class] = new ProcessTransactionValidator(
             $this->get(CurrencyService::class)
+        );
+
+        // Init Factories with dependencies
+        $this->application[FileReaderFactory::class] = new FileReaderFactory(
+            $this->get(CsvReaderService::class)
         );
     }
 
