@@ -13,6 +13,13 @@ use Exception;
 
 class ProcessTransaction extends AbstractValidator
 {
+    protected CurrencyService $currencyService;
+
+    public function __construct(CurrencyService $currencyService)
+    {
+        $this->currencyService = $currencyService;
+    }
+
     public function isValid(array $data): bool
     {
         return $this->isValidDate($data['createdAt'] ?? null)
@@ -87,7 +94,7 @@ class ProcessTransaction extends AbstractValidator
 
     protected function isValidCurrencyCode($value): bool
     {
-        $isValid = is_string($value) && CurrencyService::isSupportedCurrencyCode($value);
+        $isValid = is_string($value) && $this->currencyService->isSupportedCurrencyCode($value);
 
         if (!$isValid) {
             $this->setError(__FUNCTION__);

@@ -18,6 +18,7 @@ use CommissionTask\Repository\Currency\Currency as CurrencyRepository;
 use CommissionTask\Repository\Rate\Rate as RateRepository;
 use CommissionTask\Repository\Transaction\Transaction as TransactionRepository;
 use CommissionTask\Service\Commission\Commission as CommissionService;
+use CommissionTask\Service\Configuration as ConfigurationService;
 use CommissionTask\Service\Currency\Currency as CurrencyService;
 use CommissionTask\Service\Math as MathService;
 use CommissionTask\Service\Rate\Rate as RateService;
@@ -27,11 +28,14 @@ use CommissionTask\Validator\Transaction\ProcessTransaction as ProcessTransactio
 
 class Container implements ContainerInterface
 {
-    private $application;
+    private array $application;
 
     public function __construct()
     {
         $this->application = [
+            // Init Configuration
+            ConfigurationService::class => new ConfigurationService(),
+
             // Init Repositories
             CurrencyRepository::class => CurrencyRepository::getInstance(),
             RateRepository::class => RateRepository::getInstance(),
@@ -46,9 +50,6 @@ class Container implements ContainerInterface
             CashOutLegalCommissionFactory::class => new CashOutLegalCommissionFactory(),
             CashOutNaturalCommissionFactory::class => new CashOutNaturalCommissionFactory(),
             NewTransactionFactory::class => new NewTransactionFactory(),
-
-            // Init Validators
-            ProcessTransactionValidator::class => new ProcessTransactionValidator(),
         ];
 
         // Init Services
@@ -57,16 +58,19 @@ class Container implements ContainerInterface
             $this->get(TransactionRepository::class)
         );
         $this->application[RateService::class] = new RateService(
+            $this->get(ConfigurationService::class),
             $this->get(MathService::class),
             $this->get(RateRepository::class),
             $this->get(RateFactory::class)
         );
         $this->application[CurrencyService::class] = new CurrencyService(
+            $this->get(ConfigurationService::class),
             $this->get(RateService::class),
             $this->get(CurrencyRepository::class),
             $this->get(CurrencyFactory::class)
         );
         $this->application[CommissionService::class] = new CommissionService(
+            $this->get(ConfigurationService::class),
             $this->get(CurrencyService::class),
             $this->get(TransactionService::class)
         );
@@ -79,6 +83,11 @@ class Container implements ContainerInterface
             $this->get(CashInCommissionFactory::class),
             $this->get(CashOutLegalCommissionFactory::class),
             $this->get(CashOutNaturalCommissionFactory::class)
+        );
+
+        // Init Validators
+        $this->application[ProcessTransactionValidator::class] = new ProcessTransactionValidator(
+            $this->get(CurrencyService::class)
         );
     }
 

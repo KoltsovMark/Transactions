@@ -9,14 +9,15 @@ use Brick\Money\CurrencyConverter;
 use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
 use Brick\Money\Money;
 use CommissionTask\Factory\Currency\Currency as CurrencyFactory;
-use CommissionTask\Model\Currency\Currency as CurrencyModel;
 use CommissionTask\Repository\Currency\Currency as CurrencyRepository;
+use CommissionTask\Service\Configuration as ConfigurationService;
 use CommissionTask\Service\Rate\Rate as RateService;
 
 class Currency
 {
     public const ROUNDING_MODE = RoundingMode::UP;
 
+    private ConfigurationService $configurationService;
     private RateService $rateService;
     private CurrencyRepository $currencyRepository;
     private CurrencyFactory $currencyFactory;
@@ -25,29 +26,29 @@ class Currency
      * Currency constructor.
      */
     public function __construct(
+        ConfigurationService $configurationService,
         RateService $rateService,
         CurrencyRepository $currencyRepository,
         CurrencyFactory $currencyFactory
     ) {
+        $this->configurationService = $configurationService;
         $this->rateService = $rateService;
         $this->currencyRepository = $currencyRepository;
         $this->currencyFactory = $currencyFactory;
 
-        $this->loadCurrencies();
+        if ($this->getDefaultCurrenciesCodes()) {
+            $this->loadCurrencies();
+        }
     }
 
-    public static function getSupportedCurrenciesCodes(): array
+    public function getDefaultCurrenciesCodes(): array
     {
-        return [
-            CurrencyModel::EUR,
-            CurrencyModel::USD,
-            CurrencyModel::JPY,
-        ];
+        return $this->configurationService->get('currencies') ?? [];
     }
 
-    public static function isSupportedCurrencyCode(string $currencyCode): bool
+    public function isSupportedCurrencyCode(string $currencyCode): bool
     {
-        return \in_array($currencyCode, self::getSupportedCurrenciesCodes(), true);
+        return (bool) $this->currencyRepository->getCurrencyByCodeOrNull($currencyCode);
     }
 
     /**
@@ -212,7 +213,7 @@ class Currency
      */
     private function loadCurrencies(): void
     {
-        foreach (self::getSupportedCurrenciesCodes() as $currencyCode) {
+        foreach ($this->getDefaultCurrenciesCodes() as $currencyCode) {
             $currency = $this->currencyFactory->create($currencyCode);
             $this->currencyRepository->add($currency);
         }

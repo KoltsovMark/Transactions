@@ -8,60 +8,30 @@ use CommissionTask\Dto\Commission\CashInCommission as CashInCommissionDto;
 use CommissionTask\Dto\Commission\CashOutLegalCommission as CashOutLegalCommissionDto;
 use CommissionTask\Dto\Commission\CashOutNaturalCommission as CashOutNaturalCommissionDto;
 use CommissionTask\Exception\FunctionalInDevelopment as FunctionalInDevelopmentException;
+use CommissionTask\Service\Configuration as ConfigurationService;
 use CommissionTask\Service\Currency\Currency as CurrencyService;
 use CommissionTask\Service\Transaction\Transaction as TransactionService;
 
 class Commission
 {
-    public const TYPE_PERCENTAGE = 1;
-    public const TYPE_VALUE = 2;
+    public const COMMISSION_TYPE_PERCENTAGE = 1;
+    public const COMMISSION_TYPE_VALUE = 2;
 
-    public const TYPE_RENEWAL_WEEKLY = 1;
+    public const COMMISSION_TYPE_RENEWAL_WEEKLY = 1;
 
-    public const CONFIGURATION = [
-        'cash_in' => [
-            'fee' => [
-                'value' => '0.03',
-                'type' => self::TYPE_PERCENTAGE,
-                'max_amount' => '5.00',
-                'max_amount_type' => self::TYPE_VALUE,
-                'max_amount_currency' => 'EUR',
-            ],
-        ],
-        'cash_out' => [
-            'natural_person' => [
-                'fee' => [
-                    'value' => '0.3',
-                    'type' => self::TYPE_PERCENTAGE,
-                ],
-                'free_of_charge' => [
-                    'limit' => '1000.00',
-                    'currency' => 'EUR',
-                    'max_transactions' => 3,
-                    'renewal' => self::TYPE_RENEWAL_WEEKLY,
-                    'allow_exceeded_amount_fee' => true,
-                ],
-            ],
-            'legal_person' => [
-                'fee' => [
-                    'value' => '0.3',
-                    'type' => self::TYPE_PERCENTAGE,
-                    'min_amount' => '0.50',
-                    'min_amount_type' => self::TYPE_VALUE,
-                    'min_amount_currency' => 'EUR',
-                ],
-            ],
-        ],
-    ];
-
+    private ConfigurationService $configurationService;
     private CurrencyService $currencyService;
     private TransactionService $transactionService;
 
     /**
      * Commission constructor.
      */
-    public function __construct(CurrencyService $currencyService, TransactionService $transactionService)
-    {
+    public function __construct(
+        ConfigurationService $configurationService,
+        CurrencyService $currencyService,
+        TransactionService $transactionService
+    ) {
+        $this->configurationService = $configurationService;
         $this->currencyService = $currencyService;
         $this->transactionService = $transactionService;
     }
@@ -71,10 +41,10 @@ class Commission
      */
     public function calculateCashInCommission(CashInCommissionDto $cashInCommissionDto): string
     {
-        if (self::CONFIGURATION['cash_in']['fee']['type'] === self::TYPE_PERCENTAGE) {
+        if ($this->configurationService->get('commission.cash_in.fee.type') === self::COMMISSION_TYPE_PERCENTAGE) {
             $fee = $this->calculateFeePercentage(
                 $cashInCommissionDto->getAmount(),
-                self::CONFIGURATION['cash_in']['fee']['value'],
+                $this->configurationService->get('commission.cash_in.fee.value'),
                 $cashInCommissionDto->getCurrencyCode()
             );
 
@@ -100,10 +70,13 @@ class Commission
      */
     public function calculateCashOutLegalCommission(CashOutLegalCommissionDto $cashOutLegalCommissionDto): string
     {
-        if (self::CONFIGURATION['cash_out']['legal_person']['fee']['type'] === self::TYPE_PERCENTAGE) {
+        if (
+            $this->configurationService->get('commission.cash_out.legal_person.fee.type')
+            === self::COMMISSION_TYPE_PERCENTAGE
+        ) {
             $fee = $this->calculateFeePercentage(
                 $cashOutLegalCommissionDto->getAmount(),
-                self::CONFIGURATION['cash_out']['legal_person']['fee']['value'],
+                $this->configurationService->get('commission.cash_out.legal_person.fee.value'),
                 $cashOutLegalCommissionDto->getCurrencyCode()
             );
 
@@ -138,19 +111,19 @@ class Commission
     {
         $fee = $amount;
 
-        if (self::CONFIGURATION['cash_in']['fee']['max_amount_type'] === self::TYPE_VALUE) {
+        if ($this->configurationService->get('commission.cash_in.fee.max_amount_type') === self::COMMISSION_TYPE_VALUE) {
             $isExceedsCashInMaxLimit = $this->currencyService->isGreaterThan(
                 $amount,
                 $currencyCode,
-                self::CONFIGURATION['cash_in']['fee']['max_amount'],
-                self::CONFIGURATION['cash_in']['fee']['max_amount_currency']
+                $this->configurationService->get('commission.cash_in.fee.max_amount'),
+                $this->configurationService->get('commission.cash_in.fee.max_amount_currency')
             );
 
             if ($isExceedsCashInMaxLimit) {
                 $fee = $this->currencyService->convertCurrency(
-                    self::CONFIGURATION['cash_in']['fee']['max_amount'],
+                    $this->configurationService->get('commission.cash_in.fee.max_amount'),
                     $currencyCode,
-                    self::CONFIGURATION['cash_in']['fee']['max_amount_currency']
+                    $this->configurationService->get('commission.cash_in.fee.max_amount_currency')
                 );
             }
 
@@ -171,19 +144,22 @@ class Commission
     {
         $fee = $amount;
 
-        if (self::CONFIGURATION['cash_out']['legal_person']['fee']['min_amount_type'] === self::TYPE_VALUE) {
+        if (
+            $this->configurationService->get('commission.cash_out.legal_person.fee.min_amount_type')
+            === self::COMMISSION_TYPE_VALUE
+        ) {
             $isExceedsCashInMinLimit = $this->currencyService->isGreaterThan(
                 $amount,
                 $currencyCode,
-                self::CONFIGURATION['cash_out']['legal_person']['fee']['min_amount'],
-                self::CONFIGURATION['cash_out']['legal_person']['fee']['min_amount_currency']
+                $this->configurationService->get('commission.cash_out.legal_person.fee.min_amount'),
+                $this->configurationService->get('commission.cash_out.legal_person.fee.min_amount_currency')
             );
 
             if (!$isExceedsCashInMinLimit) {
                 $fee = $this->currencyService->convertCurrency(
-                    self::CONFIGURATION['cash_out']['legal_person']['fee']['min_amount'],
+                    $this->configurationService->get('commission.cash_out.legal_person.fee.min_amount'),
                     $currencyCode,
-                    self::CONFIGURATION['cash_out']['legal_person']['fee']['min_amount_currency']
+                    $this->configurationService->get('commission.cash_out.legal_person.fee.min_amount_currency')
                 );
             }
 
@@ -223,11 +199,14 @@ class Commission
                 $transactionAmount,
                 $transactionCurrency,
                 $availableDiscount,
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency')
             );
         }
 
-        if (self::CONFIGURATION['cash_out']['natural_person']['fee']['type'] === self::TYPE_PERCENTAGE) {
+        if (
+            $this->configurationService->get('commission.cash_out.natural_person.fee.type')
+            === self::COMMISSION_TYPE_PERCENTAGE
+        ) {
             $ifFeePositive = $this->currencyService->isPositive(
                 $feeAmount,
                 $transactionCurrency
@@ -236,7 +215,7 @@ class Commission
             if ($ifFeePositive) {
                 return $this->calculateFeePercentage(
                     $feeAmount,
-                    self::CONFIGURATION['cash_out']['natural_person']['fee']['value'],
+                    $this->configurationService->get('commission.cash_out.natural_person.fee.value'),
                     $transactionCurrency
                 );
             } else {
@@ -255,16 +234,16 @@ class Commission
         string $transactionDate
     ): bool {
         if (
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['renewal']
-            === self::TYPE_RENEWAL_WEEKLY
+            $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.renewal')
+            === self::COMMISSION_TYPE_RENEWAL_WEEKLY
         ) {
             $transactions = $this->transactionService->getWeeklyCashOutTransactionsByCustomerAndDate(
                 $customerId,
                 $transactionDate
             );
-            $maxTransactions = self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['max_transactions'];
 
-            return count($transactions) >= $maxTransactions;
+            return count($transactions)
+                >= $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.max_transactions');
         } else {
             throw new FunctionalInDevelopmentException();
         }
@@ -282,22 +261,22 @@ class Commission
         string $transactionDate
     ): bool {
         if (
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['renewal']
-            === self::TYPE_RENEWAL_WEEKLY
+            $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.renewal')
+            === self::COMMISSION_TYPE_RENEWAL_WEEKLY
         ) {
             $transactions = $this->transactionService->getWeeklyCashOutTransactionsByCustomerAndDate(
                 $customerId,
                 $transactionDate
             );
             $transactionsAmount = $this->currencyService->getEmptyAmount(
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency')
             );
 
             if (!empty($transactions)) {
                 foreach ($transactions as $transaction) {
                     $transactionsAmount = $this->currencyService->add(
                         $transactionsAmount,
-                        self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                        $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency'),
                         $transaction->getAmount(),
                         $transaction->getCurrency()->getCode()
                     );
@@ -306,9 +285,9 @@ class Commission
 
             return $this->currencyService->isGreaterThanOrEqual(
                 $transactionsAmount,
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['limit'],
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency'),
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.limit'),
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency'),
             );
         } else {
             throw new FunctionalInDevelopmentException();
@@ -327,11 +306,11 @@ class Commission
         string $transactionDate
     ): string {
         if (
-            self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['renewal']
-            === self::TYPE_RENEWAL_WEEKLY
+            $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.renewal')
+            === self::COMMISSION_TYPE_RENEWAL_WEEKLY
         ) {
             $transactionsAmountInBaseCurrency = $this->currencyService->getEmptyAmount(
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency')
             );
 
             $transactions = $this->transactionService->getWeeklyCashOutTransactionsByCustomerAndDate(
@@ -343,7 +322,7 @@ class Commission
                 foreach ($transactions as $transaction) {
                     $transactionsAmountInBaseCurrency = $this->currencyService->add(
                         $transactionsAmountInBaseCurrency,
-                        self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                        $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency'),
                         $transaction->getAmount(),
                         $transaction->getCurrency()->getCode()
                     );
@@ -351,22 +330,22 @@ class Commission
             }
 
             $availableDiscount = $this->currencyService->minus(
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['limit'],
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.limit'),
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency'),
                 $transactionsAmountInBaseCurrency,
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency'],
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency'),
             );
 
             $isDiscountPositive = $this->currencyService->isPositive(
                 $availableDiscount,
-                self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
+                $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency')
             );
 
             if ($isDiscountPositive) {
                 return $availableDiscount;
             } else {
                 return $this->currencyService->getEmptyAmount(
-                    self::CONFIGURATION['cash_out']['natural_person']['free_of_charge']['currency']
+                    $this->configurationService->get('commission.cash_out.natural_person.free_of_charge.currency')
                 );
             }
         } else {

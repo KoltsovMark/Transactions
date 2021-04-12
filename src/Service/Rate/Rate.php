@@ -8,17 +8,12 @@ use CommissionTask\Exception\Rate\RateDoNotExist as RateDoNotExistException;
 use CommissionTask\Factory\Rate\Rate as RateFactory;
 use CommissionTask\Model\Rate\Rate as RateModel;
 use CommissionTask\Repository\Rate\Rate as RateRepository;
+use CommissionTask\Service\Configuration as ConfigurationService;
 use CommissionTask\Service\Math as MathService;
 
 class Rate
 {
-    private const DEFAULT_RATES = [
-      'EUR' => [
-          'USD' => '1.1497',
-          'JPY' => '129.53',
-      ],
-    ];
-
+    private ConfigurationService $configurationService;
     private MathService $mathService;
     private RateRepository $rateRepository;
     private RateFactory $rateFactory;
@@ -27,56 +22,25 @@ class Rate
      * Rate constructor. Load default rates to the system.
      */
     public function __construct(
+        ConfigurationService $configurationService,
         MathService $mathService,
         RateRepository $rateRepository,
         RateFactory $rateFactory
     ) {
+        $this->configurationService = $configurationService;
         $this->mathService = $mathService;
         $this->rateRepository = $rateRepository;
         $this->rateFactory = $rateFactory;
 
-        $this->loadRates();
-        $this->loadReversedRates();
-    }
-
-    /**
-     * @return \string[][]
-     */
-    private static function getDefaultRatesArray(): array
-    {
-        return self::DEFAULT_RATES;
-    }
-
-    /**
-     * Load default rates to repository if rate do not exist.
-     */
-    private function loadRates(): void
-    {
-        foreach (self::getDefaultRatesArray() as $baseCurrency => $quoteCurrencies) {
-            foreach ($quoteCurrencies as $quoteCurrency => $rate) {
-                $rateModel = $this->rateFactory->create($baseCurrency, $quoteCurrency, $rate);
-                $this->rateRepository->add($rateModel);
-            }
+        if ($this->getDefaultRatesArray()) {
+            $this->loadRates();
+            $this->loadReversedRates();
         }
     }
 
-    /**
-     * Calculate and load reversed rates if rate do not exist.
-     */
-    private function loadReversedRates()
+    public function getDefaultRatesArray(): array
     {
-        foreach (Rate::getDefaultRatesArray() as $baseCurrency => $quoteCurrencies) {
-            foreach ($quoteCurrencies as $quoteCurrency => $rate) {
-                $rateModel = $this->rateFactory
-                    ->create(
-                        $quoteCurrency,
-                        $baseCurrency,
-                        $this->mathService->divide('1', $rate)
-                    )
-                ;
-                $this->rateRepository->add($rateModel);
-            }
-        }
+        return $this->configurationService->get('rates') ?? [];
     }
 
     public function isRateSupported(string $baseCurrency, string $quoteCurrency): bool
@@ -93,6 +57,38 @@ class Rate
             return $this->rateRepository->getRateByCodesOrNull($baseCurrency, $quoteCurrency);
         } else {
             throw new RateDoNotExistException();
+        }
+    }
+
+    /**
+     * Load default rates to repository if rate do not exist.
+     */
+    private function loadRates(): void
+    {
+        foreach ($this->getDefaultRatesArray() as $baseCurrency => $quoteCurrencies) {
+            foreach ($quoteCurrencies as $quoteCurrency => $rate) {
+                $rateModel = $this->rateFactory->create($baseCurrency, $quoteCurrency, $rate);
+                $this->rateRepository->add($rateModel);
+            }
+        }
+    }
+
+    /**
+     * Calculate and load reversed rates if rate do not exist.
+     */
+    private function loadReversedRates()
+    {
+        foreach ($this->getDefaultRatesArray() as $baseCurrency => $quoteCurrencies) {
+            foreach ($quoteCurrencies as $quoteCurrency => $rate) {
+                $rateModel = $this->rateFactory
+                    ->create(
+                        $quoteCurrency,
+                        $baseCurrency,
+                        $this->mathService->divide('1', $rate)
+                    )
+                ;
+                $this->rateRepository->add($rateModel);
+            }
         }
     }
 }
