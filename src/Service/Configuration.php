@@ -65,10 +65,6 @@ class Configuration
         return $this->read($path, $this->configuration);
     }
 
-    public function set(string $path, mixed $value)
-    {
-    }
-
     private function read(string $path, array $data)
     {
         $pathArray = \explode(self::DELIMITER, $path);
